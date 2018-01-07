@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7272a800be7019a44a513171421c71f6, type: 3}
+  m_Name: EditorGUIData
+  m_EditorClassIdentifier: 
+  GUISkin: {fileID: 11400000, guid: 2ad09642b4244db40901625ac70d36ff, type: 2}
+  InventoryDataPath: TP_Creator/TP_InventoryCreator/InventoryData/
+  InventoryAssetsPath: TP_Creator/TP_InventoryCreator/InventoryData/
+  InventoryPrefab: {fileID: 1832101627673266, guid: a829bbb4ccc9d69449d735aeddeaa6b7,
+    type: 2}
