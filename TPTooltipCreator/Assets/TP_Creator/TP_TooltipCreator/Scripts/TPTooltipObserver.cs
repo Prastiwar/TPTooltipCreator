@@ -25,7 +25,7 @@ namespace TP_TooltipCreator
 
         public void OnPointerEnter(PointerEventData eventData)
         {
-            tooltipCreator.OnPointerEnter(eventData, SetType);
+            tooltipCreator.OnPointerEnter(eventData);
         }
         public void OnPointerExit(PointerEventData eventData)
         {

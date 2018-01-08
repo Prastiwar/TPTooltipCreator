@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEditor;
 using TP_TooltipCreator;
 
@@ -12,22 +13,25 @@ namespace TP_TooltipEditor
         public enum ToolEnum
         {
             Preview,
-            Observers
+            Observers,
+            Layout,
         }
 
         static ToolEnum tool;
         string[] enumNamesList = System.Enum.GetNames(typeof(TPTooltipObserver.ToolTipType));
 
-        Vector2 scrollPos = Vector2.zero;
-
         SerializedProperty observerList;
         SerializedProperty offset;
+        SerializedProperty tooltipLayout;
 
         GUIContent content = new GUIContent("You can drag there multiple observers   |  Size");
 
         Texture2D mainTexture;
         Texture2D tooltipTexture;
         Texture2D previewTexture;
+
+        Vector2 scrollPos = Vector2.zero;
+        Vector2 textureVec;
 
         Rect mainRect;
         Rect leftUp = new Rect(10, 10, 50, 50);
@@ -47,6 +51,14 @@ namespace TP_TooltipEditor
 
         void OnEnable()
         {
+            InitTextures();
+            observerList = TPTooltipDesigner.creator.FindProperty("GMObservers");
+            offset = TPTooltipDesigner.creator.FindProperty("Offset");
+            tooltipLayout = TPTooltipDesigner.creator.FindProperty("TooltipLayout");
+        }
+
+        void InitTextures()
+        {
             Color color = new Color(0.19f, 0.19f, 0.19f);
             mainTexture = new Texture2D(1, 1);
             mainTexture.SetPixel(0, 0, color);
@@ -56,13 +68,25 @@ namespace TP_TooltipEditor
             previewTexture.SetPixel(0, 0, Color.red);
             previewTexture.Apply();
 
-            var panel = TPTooltipDesigner.TooltipCreator.TooltipLayout.transform.GetChild(0).GetComponent<RectTransform>().rect;
+            InitPreviewTexture();
+            
+        } 
+
+        void InitPreviewTexture()
+        {
+            if (tool != ToolEnum.Preview)
+                return;
+
+            if (TPTooltipDesigner.TooltipCreator.TooltipLayout == null)
+            {
+                Debug.LogError("No layout loaded! Change it in 'Layout' tool");
+                return;
+            }
+            var panel = TPTooltipDesigner.TooltipCreator.TooltipLayout.PanelTransform.GetComponent<RectTransform>().rect;
             tooltipTexture = new Texture2D((int)panel.width, (int)panel.height);
             tooltipTexture.SetPixel(0, 0, Color.white);
             tooltipTexture.Apply();
-
-            observerList = TPTooltipDesigner.creator.FindProperty("GMObservers");
-            offset = TPTooltipDesigner.creator.FindProperty("Offset");
+            textureVec = new Vector2(tooltipTexture.width, tooltipTexture.height);
         }
 
         void OnGUI()
@@ -76,13 +100,19 @@ namespace TP_TooltipEditor
 
         void DrawTool()
         {
-            if (tool == ToolEnum.Preview)
+            switch (tool)
             {
-                DrawPreview();
-            }
-            else
-            {
-                DrawObserverTool();
+                case ToolEnum.Preview:
+                    DrawPreviewTool();
+                    break;
+                case ToolEnum.Observers:
+                    DrawObserverTool();
+                    break;
+                case ToolEnum.Layout:
+                    DrawLayoutsTool();
+                    break;
+                default:
+                    break;
             }
         }
 
@@ -184,7 +214,7 @@ namespace TP_TooltipEditor
                 = actualSelected == 1 ? TPTooltipObserver.ToolTipType.Static : TPTooltipObserver.ToolTipType.Dynamic;
         }
 
-        void DrawPreview()
+        void DrawPreviewTool()
         {
             EditorGUILayout.PropertyField(offset);
             offset.serializedObject.ApplyModifiedProperties();
@@ -198,12 +228,11 @@ namespace TP_TooltipEditor
             GUI.DrawTexture(rightDown, previewTexture);
 
             Event e = Event.current;
-            GUI.DrawTexture(new Rect(
-                (e.mousePosition.x - tooltipTexture.width / 2) + offset.vector2Value.x,
-                (e.mousePosition.y - tooltipTexture.height / 2) + offset.vector2Value.y,
-                tooltipTexture.width,
-                tooltipTexture.height),
-                tooltipTexture);
+            Vector2 pos = (e.mousePosition - (textureVec / 2)) + offset.vector2Value;
+            pos.Set(Mathf.Clamp(pos.x, 0, window.maxSize.x - (tooltipTexture.width)),
+                Mathf.Clamp(pos.y, 0, window.maxSize.y - (tooltipTexture.height * 1.5f)));
+            Rect rect = new Rect(pos, textureVec);
+            GUI.DrawTexture(rect, tooltipTexture);
             GUILayout.EndArea();
         }
 
@@ -212,5 +241,17 @@ namespace TP_TooltipEditor
             if(tool == ToolEnum.Preview)
                 Repaint();
         }
+
+        void DrawLayoutsTool()
+        {
+            EditorGUILayout.LabelField("Put there parent of your Tooltip Layout)", TPTooltipDesigner.skin.GetStyle("TipLabel"));
+            EditorGUILayout.PropertyField(tooltipLayout, GUIContent.none, GUILayout.Height(15));
+            TPTooltipDesigner.creator.ApplyModifiedProperties();
+
+            if (GUI.changed)
+                TPTooltipDesigner.UpdateManager();
+            EditorGUILayout.Space();
+        }
+
     }
 }

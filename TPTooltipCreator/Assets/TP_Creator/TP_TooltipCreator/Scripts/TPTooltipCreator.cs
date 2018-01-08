@@ -8,18 +8,19 @@ namespace TP_TooltipCreator
 {
     public class TPTooltipCreator : MonoBehaviour
     {
-        public GameObject TooltipLayout;
+        //public GameObject TooltipLayout;
+        public TPTooltipLayout TooltipLayout;
         public Vector2 Offset;
         public TPTooltipObserver OnObserver;
         public List<TPTooltipObserver> Observers = new List<TPTooltipObserver>();
 
-        Image PanelImage;
-        Transform Panel;
-        Vector2 PanelVector2;
+        [SerializeField] List<GameObject> GMObservers;
         PointerEventData _eventData;
         WaitWhile Wait;
-
-        [SerializeField] List<GameObject> GMObservers;
+        GameObject TooltipLayoutCanvas;
+        Vector2 PanelVector2;
+        float PanelHeight2;
+        float PanelWidth2;
 
         void OnValidate()
         {
@@ -35,8 +36,11 @@ namespace TP_TooltipCreator
         {
             if (TooltipLayout != null)
             {
-                if (PanelImage == null) PanelImage = TooltipLayout.GetComponentInChildren<Image>();
-                if (Panel == null) Panel = PanelImage.transform;
+                TooltipLayoutCanvas = TooltipLayout.gameObject;
+                Image PanelImage = TooltipLayout.PanelTransform.GetComponent<Image>();
+                Rect PanelRect = PanelImage.rectTransform.rect;
+                PanelWidth2 = PanelRect.width / 2;
+                PanelHeight2 = PanelRect.height / 2;
             }
 
             Observers.Clear();
@@ -53,13 +57,13 @@ namespace TP_TooltipCreator
             }
         }
 
-        public void OnPointerEnter(PointerEventData eventData, TPTooltipObserver.ToolTipType Type)
+        public void OnPointerEnter(PointerEventData eventData)
         {
             OnObserver = eventData.pointerEnter.GetComponent<TPTooltipObserver>();
             _eventData = eventData;
             Animate(true);
 
-            if(Type == TPTooltipObserver.ToolTipType.Dynamic)
+            if(OnObserver.SetType == TPTooltipObserver.ToolTipType.Dynamic)
                 StartCoroutine(ToolTipPositioning());
         }
 
@@ -75,14 +79,24 @@ namespace TP_TooltipCreator
             while (_eventData != null)
             {
                 PanelVector2 = _eventData.position + Offset;
-                Panel.position = PanelVector2;
+                PanelVector2.Set(Mathf.Clamp(PanelVector2.x, PanelWidth2, Screen.width - PanelWidth2),
+                    Mathf.Clamp(PanelVector2.y, PanelHeight2, Screen.height - PanelHeight2));
+
+                TooltipLayout.PanelTransform.position = PanelVector2;
                 yield return Wait;
             }
         }
 
         public virtual void Animate(bool SetActive)
         {
-            TooltipLayout.SetActive(SetActive);
+            if (TooltipLayout == null)
+            {
+                Debug.LogError("No Layout loaded");
+                return;
+            }
+
+            TooltipLayoutCanvas.SetActive(SetActive);
+
         }
     }
 }

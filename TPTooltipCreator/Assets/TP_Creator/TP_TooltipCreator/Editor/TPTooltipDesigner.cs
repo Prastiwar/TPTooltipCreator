@@ -24,7 +24,7 @@ namespace TP_TooltipEditor
 
         public static TPTooltipGUIData EditorData;
         public static TPTooltipCreator TooltipCreator;
-        GUISkin skin;
+        public static GUISkin skin;
 
         Texture2D headerTexture;
         Texture2D managerTexture;
@@ -38,7 +38,6 @@ namespace TP_TooltipEditor
         bool toggleChange;
 
         public static SerializedObject creator;
-        SerializedProperty tooltipLayout;
 
         void OnEnable()
         {
@@ -47,7 +46,6 @@ namespace TP_TooltipEditor
             InitCreator();
 
             creator = new SerializedObject(TooltipCreator);
-            tooltipLayout = creator.FindProperty("TooltipLayout");
         }
 
         void InitEditorData()
@@ -143,7 +141,7 @@ namespace TP_TooltipEditor
             }
             else
             {
-                ChangeTooltipLayout();
+                //ChangeTooltipLayout();
                 SpawnEmpty();
                 ResetManager();
 
@@ -194,24 +192,24 @@ namespace TP_TooltipEditor
             }
         }
 
-        void ChangeTooltipLayout()
-        {
-            if (GUILayout.Button("Change Tooltip Canvas", skin.button, GUILayout.Height(50)))
-                toggleChange = !toggleChange;
+        //void ChangeTooltipLayout()
+        //{
+        //    if (GUILayout.Button("Change Tooltip Canvas", skin.button, GUILayout.Height(50)))
+        //        toggleChange = !toggleChange;
 
-            if (toggleChange)
-            {
-                EditorGUILayout.LabelField("Put there parent of your tooltip layout(Canvas)", skin.GetStyle("TipLabel"));
-                EditorGUILayout.PropertyField(tooltipLayout, GUIContent.none, GUILayout.Height(15));
-                creator.ApplyModifiedProperties();
+        //    if (toggleChange)
+        //    {
+        //        EditorGUILayout.LabelField("Put there parent of your tooltip layout(Canvas)", skin.GetStyle("TipLabel"));
+        //        //EditorGUILayout.PropertyField(tooltipLayout, GUIContent.none, GUILayout.Height(15));
+        //        creator.ApplyModifiedProperties();
 
-                if (GUI.changed)
-                {
-                    UpdateManager();
-                }
-                EditorGUILayout.Space();
-            }
-        }
+        //        if (GUI.changed)
+        //        {
+        //            UpdateManager();
+        //        }
+        //        EditorGUILayout.Space();
+        //    }
+        //}
 
         public static void UpdateManager()
         {
@@ -222,13 +220,17 @@ namespace TP_TooltipEditor
         {
             GUILayout.BeginArea(toolSection);
             GUILayout.Label("Tooltip Manager - Tools", skin.box);
-            if (GUILayout.Button("Dynamic Offset", skin.button, GUILayout.Height(70)))
+            if (GUILayout.Button("Dynamic Offset", skin.button, GUILayout.Height(60)))
             {
                 TPTooltipToolsWindow.OpenToolWindow(TPTooltipToolsWindow.ToolEnum.Preview);
             }
-            if (GUILayout.Button("Observers", skin.button, GUILayout.Height(70)))
+            if (GUILayout.Button("Observers", skin.button, GUILayout.Height(60)))
             {
                 TPTooltipToolsWindow.OpenToolWindow(TPTooltipToolsWindow.ToolEnum.Observers);
+            }
+            if (GUILayout.Button("Layout", skin.button, GUILayout.Height(60)))
+            {
+                TPTooltipToolsWindow.OpenToolWindow(TPTooltipToolsWindow.ToolEnum.Layout);
             }
             GUILayout.EndArea();
         }
