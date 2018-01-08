@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEditor;
 using TP_TooltipCreator;
+using TMPro;
 
 namespace TP_TooltipEditor
 {
@@ -20,6 +21,10 @@ namespace TP_TooltipEditor
         static ToolEnum tool;
         string[] enumNamesList = System.Enum.GetNames(typeof(TPTooltipObserver.ToolTipType));
 
+        SerializedObject TooltipLayout;
+        SerializedProperty layoutTexts;
+        SerializedProperty layoutImages;
+        SerializedProperty layoutButtons;
         SerializedProperty observerList;
         SerializedProperty offset;
         SerializedProperty tooltipLayout;
@@ -34,27 +39,61 @@ namespace TP_TooltipEditor
         Vector2 textureVec;
 
         Rect mainRect;
-        Rect leftUp = new Rect(10, 10, 50, 50);
-        Rect leftDown = new Rect(10, 300, 50, 50);
-        Rect center = new Rect(175, 175, 50, 50);
-        Rect rightUp = new Rect(340, 10, 50, 50);
-        Rect rightDown = new Rect(340, 300, 50, 50);
+        Rect leftUp;
+        Rect leftDown;
+        Rect center;
+        Rect rightUp;
+        Rect rightDown;
+
+        bool toggleItems = false;
+        bool[] showBools = new bool[3];
+
+        static float windowSize = 400;
+        static float windowPreviewSize = 600;
 
         public static void OpenToolWindow(ToolEnum _tool)
         {
-            window = (TPTooltipToolsWindow)GetWindow(typeof(TPTooltipToolsWindow));
-            window.minSize = new Vector2(400, 400);
-            window.maxSize = new Vector2(400, 400);
-            window.Show();
             tool = _tool;
+            window = (TPTooltipToolsWindow)GetWindow(typeof(TPTooltipToolsWindow));
+            if (tool == ToolEnum.Preview)
+            {
+                window.minSize = new Vector2(windowPreviewSize, windowPreviewSize);
+                window.maxSize = new Vector2(windowPreviewSize, windowPreviewSize);
+            }
+            else
+            {
+                window.minSize = new Vector2(windowSize, windowSize);
+                window.maxSize = new Vector2(windowSize, windowSize);
+            }
+            window.Show();
         }
 
         void OnEnable()
         {
             InitTextures();
+            InitRects();
+            TooltipLayout = new SerializedObject(TPTooltipDesigner.TooltipCreator.TooltipLayout);
             observerList = TPTooltipDesigner.creator.FindProperty("GMObservers");
             offset = TPTooltipDesigner.creator.FindProperty("Offset");
             tooltipLayout = TPTooltipDesigner.creator.FindProperty("TooltipLayout");
+            layoutTexts = TooltipLayout.FindProperty("Texts");
+            layoutImages = TooltipLayout.FindProperty("Images");
+            layoutButtons = TooltipLayout.FindProperty("Buttons");
+
+            toggleItems = tooltipLayout.objectReferenceValue != null ? true : false;
+        }
+
+        void InitRects()
+        {
+            float boxSize = 70;
+            float size = windowPreviewSize - boxSize;
+            float gap = 20;
+
+            leftUp = new Rect(gap, gap, boxSize, boxSize);
+            leftDown = new Rect(gap, size - 60, boxSize, boxSize);
+            center = new Rect((size - gap) / 2, (size - boxSize) / 2, boxSize, boxSize);
+            rightUp = new Rect(size - gap, gap, boxSize, boxSize);
+            rightDown = new Rect(size - gap, size - 60, boxSize, boxSize);
         }
 
         void InitTextures()
@@ -69,7 +108,6 @@ namespace TP_TooltipEditor
             previewTexture.Apply();
 
             InitPreviewTexture();
-            
         } 
 
         void InitPreviewTexture()
@@ -158,6 +196,7 @@ namespace TP_TooltipEditor
                 GUILayout.EndHorizontal();
             }
         }
+
         void Check(SerializedProperty list, int index)
         {
             int length = list.arraySize;
@@ -216,6 +255,8 @@ namespace TP_TooltipEditor
 
         void DrawPreviewTool()
         {
+            if (TPTooltipDesigner.TooltipCreator.TooltipLayout == null)
+                return;
             EditorGUILayout.PropertyField(offset);
             offset.serializedObject.ApplyModifiedProperties();
             GUILayout.BeginArea(new Rect(0, 50, Screen.width, Screen.height));
@@ -230,7 +271,7 @@ namespace TP_TooltipEditor
             Event e = Event.current;
             Vector2 pos = (e.mousePosition - (textureVec / 2)) + offset.vector2Value;
             pos.Set(Mathf.Clamp(pos.x, 0, window.maxSize.x - (tooltipTexture.width)),
-                Mathf.Clamp(pos.y, 0, window.maxSize.y - (tooltipTexture.height * 1.5f)));
+                Mathf.Clamp(pos.y, 0, window.maxSize.y - (tooltipTexture.height + 50)));
             Rect rect = new Rect(pos, textureVec);
             GUI.DrawTexture(rect, tooltipTexture);
             GUILayout.EndArea();
@@ -244,13 +285,59 @@ namespace TP_TooltipEditor
 
         void DrawLayoutsTool()
         {
-            EditorGUILayout.LabelField("Put there parent of your Tooltip Layout)", TPTooltipDesigner.skin.GetStyle("TipLabel"));
-            EditorGUILayout.PropertyField(tooltipLayout, GUIContent.none, GUILayout.Height(15));
-            TPTooltipDesigner.creator.ApplyModifiedProperties();
-
+            EditorGUILayout.LabelField("Put there parent of your Tooltip Layout", TPTooltipDesigner.skin.GetStyle("TipLabel"));
+            EditorGUILayout.PropertyField(tooltipLayout, GUIContent.none, GUILayout.Height(30));
             if (GUI.changed)
+            {
                 TPTooltipDesigner.UpdateManager();
+                toggleItems = tooltipLayout.objectReferenceValue != null ? true : false;
+            }
             EditorGUILayout.Space();
+
+            if (toggleItems)
+            {
+                EditorGUILayout.BeginHorizontal();
+                if (GUILayout.Button("Show Texts"))
+                    ToggleShow(0);
+                if (GUILayout.Button("Show Images"))
+                    ToggleShow(1);
+                if (GUILayout.Button("Show Buttons"))
+                    ToggleShow(2);
+                EditorGUILayout.EndHorizontal();
+
+                if (showBools[0])
+                    DrawItem(layoutTexts);
+                if (showBools[1])
+                    DrawItem(layoutImages);
+                if (showBools[2])
+                    DrawItem(layoutButtons);
+            }
+        }
+
+        void ToggleShow(int showIndex)
+        {
+            int length = showBools.Length;
+            for (int i = 0; i < length; i++)
+                showBools[i] = false;
+
+            showBools[showIndex] = true;
+        }
+        
+        void DrawItem(SerializedProperty layout)
+        {
+            if (layout.arraySize == 0)
+            {
+                EditorGUILayout.HelpBox("Nothing loaded!", MessageType.Error);
+                return;
+            }
+            int length = layout.arraySize;
+            for (int i = 0; i < length; i++)
+            {
+                GUILayout.BeginHorizontal();
+                EditorGUILayout.PropertyField(layout.GetArrayElementAtIndex(i), GUIContent.none, GUILayout.Width(350));
+                EditAsset(layout, i);
+                GUILayout.EndHorizontal();
+            }
         }
 
     }

@@ -141,11 +141,10 @@ namespace TP_TooltipEditor
             }
             else
             {
-                //ChangeTooltipLayout();
                 SpawnEmpty();
                 ResetManager();
 
-                if (GUILayout.Button("Refresh and update", skin.button, GUILayout.Height(60)))
+                if (GUILayout.Button("Refresh and update", skin.button, GUILayout.Height(70)))
                 {
                     UpdateManager();
                 }
@@ -156,7 +155,7 @@ namespace TP_TooltipEditor
 
         void InitializeManager()
         {
-            if (GUILayout.Button("Initialize New Manager", skin.button, GUILayout.Height(50)))
+            if (GUILayout.Button("Initialize New Manager", skin.button, GUILayout.Height(60)))
             {
                 GameObject go = (new GameObject("TP_TooltipManager", typeof(TPTooltipCreator)));
                 TooltipCreator = go.GetComponent<TPTooltipCreator>();
@@ -164,7 +163,7 @@ namespace TP_TooltipEditor
                 Debug.Log("Tooltip Manager created!");
             }
 
-            if (GUILayout.Button("Initialize Exist Manager", skin.button, GUILayout.Height(50)))
+            if (GUILayout.Button("Initialize Exist Manager", skin.button, GUILayout.Height(60)))
                 existManager = !existManager;
 
             if (existManager)
@@ -174,13 +173,13 @@ namespace TP_TooltipEditor
 
         void ResetManager()
         {
-            if (GUILayout.Button("Reset Manager", skin.button, GUILayout.Height(35)))
+            if (GUILayout.Button("Reset Manager", skin.button, GUILayout.Height(45)))
                 TooltipCreator = null;
         }
 
         void SpawnEmpty()
         {
-            if (GUILayout.Button("Spawn empty Tooltip Canvas", skin.button, GUILayout.Height(40)))
+            if (GUILayout.Button("Spawn empty Tooltip Canvas", skin.button, GUILayout.Height(50)))
             {
                 if (EditorData.TooltipPrefab == null)
                 {
@@ -192,28 +191,12 @@ namespace TP_TooltipEditor
             }
         }
 
-        //void ChangeTooltipLayout()
-        //{
-        //    if (GUILayout.Button("Change Tooltip Canvas", skin.button, GUILayout.Height(50)))
-        //        toggleChange = !toggleChange;
-
-        //    if (toggleChange)
-        //    {
-        //        EditorGUILayout.LabelField("Put there parent of your tooltip layout(Canvas)", skin.GetStyle("TipLabel"));
-        //        //EditorGUILayout.PropertyField(tooltipLayout, GUIContent.none, GUILayout.Height(15));
-        //        creator.ApplyModifiedProperties();
-
-        //        if (GUI.changed)
-        //        {
-        //            UpdateManager();
-        //        }
-        //        EditorGUILayout.Space();
-        //    }
-        //}
-
         public static void UpdateManager()
         {
             TooltipCreator.Refresh();
+            TooltipCreator.TooltipLayout.Refresh();
+            if(creator != null)
+                creator.ApplyModifiedProperties();
         }
 
         void DrawTools()

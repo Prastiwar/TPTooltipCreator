@@ -10,10 +10,12 @@ namespace TP_TooltipCreator
     {
         public List<TextMeshProUGUI> Texts;
         public List<Image> Images;
+        public List<Button> Buttons;
 
         public Transform PanelTransform;
         public Transform TextsParent;
         public Transform ImagesParent;
+        public Transform ButtonsParent;
 
         TPTooltipCreator creator;
 
@@ -32,8 +34,10 @@ namespace TP_TooltipCreator
         {
             Texts.Clear();
             Images.Clear();
+            Buttons.Clear();
             GetComponents(TextsParent, Texts);
             GetComponents(ImagesParent, Images);
+            GetComponents(ButtonsParent, Buttons);
         }
 
         void GetComponents<T>(Transform child, List<T> list)
