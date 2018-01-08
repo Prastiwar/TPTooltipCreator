@@ -37,7 +37,7 @@ namespace TP_TooltipEditor
         bool existManager;
         bool toggleChange;
 
-        SerializedObject creator;
+        public static SerializedObject creator;
         SerializedProperty tooltipLayout;
 
         void OnEnable()
@@ -105,8 +105,8 @@ namespace TP_TooltipEditor
         {
             if (EditorApplication.isPlaying)
             {
-                //if (TPInventoryToolsWindow.window)
-                //TPInventoryToolsWindow.window.Close();
+                if (TPTooltipToolsWindow.window)
+                    TPTooltipToolsWindow.window.Close();
                 this.Close();
             }
             DrawLayouts();
@@ -182,7 +182,7 @@ namespace TP_TooltipEditor
 
         void SpawnEmpty()
         {
-            if (GUILayout.Button("Spawn empty tooltip", skin.button, GUILayout.Height(40)))
+            if (GUILayout.Button("Spawn empty Tooltip Canvas", skin.button, GUILayout.Height(40)))
             {
                 if (EditorData.TooltipPrefab == null)
                 {
@@ -196,13 +196,14 @@ namespace TP_TooltipEditor
 
         void ChangeTooltipLayout()
         {
-            if (GUILayout.Button("Change Tooltip Layout", skin.button, GUILayout.Height(50)))
+            if (GUILayout.Button("Change Tooltip Canvas", skin.button, GUILayout.Height(50)))
                 toggleChange = !toggleChange;
 
             if (toggleChange)
             {
-                EditorGUILayout.LabelField("Put there parent prefab of your tooltip layout", skin.GetStyle("TipLabel"));
+                EditorGUILayout.LabelField("Put there parent of your tooltip layout(Canvas)", skin.GetStyle("TipLabel"));
                 EditorGUILayout.PropertyField(tooltipLayout, GUIContent.none, GUILayout.Height(15));
+                creator.ApplyModifiedProperties();
 
                 if (GUI.changed)
                 {
@@ -220,8 +221,8 @@ namespace TP_TooltipEditor
         void DrawTools()
         {
             GUILayout.BeginArea(toolSection);
-            GUILayout.Label("Inventory Manager - Tools", skin.box);
-            if (GUILayout.Button("Preview Offset", skin.button, GUILayout.Height(70)))
+            GUILayout.Label("Tooltip Manager - Tools", skin.box);
+            if (GUILayout.Button("Dynamic Offset", skin.button, GUILayout.Height(70)))
             {
                 TPTooltipToolsWindow.OpenToolWindow(TPTooltipToolsWindow.ToolEnum.Preview);
             }

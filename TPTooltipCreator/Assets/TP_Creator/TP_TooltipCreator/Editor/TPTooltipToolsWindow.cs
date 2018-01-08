@@ -16,17 +16,25 @@ namespace TP_TooltipEditor
         }
 
         static ToolEnum tool;
-        //static object _object;
-        //static string loaded;
-        //static string noLoaded;
-        //static string horizontalVar;
-        //static Array array;
-        //static UnityAction action;
-        //static Type type;
+        string[] enumNamesList = System.Enum.GetNames(typeof(TPTooltipObserver.ToolTipType));
+
+        Vector2 scrollPos = Vector2.zero;
+
+        SerializedProperty observerList;
+        SerializedProperty offset;
+
+        GUIContent content = new GUIContent("You can drag there multiple observers   |  Size");
+
+        Texture2D mainTexture;
+        Texture2D tooltipTexture;
+        Texture2D previewTexture;
 
         Rect mainRect;
-        Vector2 scrollPos = Vector2.zero;
-        Texture2D mainTexture;
+        Rect leftUp = new Rect(10, 10, 50, 50);
+        Rect leftDown = new Rect(10, 300, 50, 50);
+        Rect center = new Rect(175, 175, 50, 50);
+        Rect rightUp = new Rect(340, 10, 50, 50);
+        Rect rightDown = new Rect(340, 300, 50, 50);
 
         public static void OpenToolWindow(ToolEnum _tool)
         {
@@ -43,6 +51,18 @@ namespace TP_TooltipEditor
             mainTexture = new Texture2D(1, 1);
             mainTexture.SetPixel(0, 0, color);
             mainTexture.Apply();
+
+            previewTexture = new Texture2D(100, 100);
+            previewTexture.SetPixel(0, 0, Color.red);
+            previewTexture.Apply();
+
+            var panel = TPTooltipDesigner.TooltipCreator.TooltipLayout.transform.GetChild(0).GetComponent<RectTransform>().rect;
+            tooltipTexture = new Texture2D((int)panel.width, (int)panel.height);
+            tooltipTexture.SetPixel(0, 0, Color.white);
+            tooltipTexture.Apply();
+
+            observerList = TPTooltipDesigner.creator.FindProperty("GMObservers");
+            offset = TPTooltipDesigner.creator.FindProperty("Offset");
         }
 
         void OnGUI()
@@ -72,85 +92,125 @@ namespace TP_TooltipEditor
             {
                 AddObserver();
             }
-            if (TPTooltipDesigner.TooltipCreator.Observers.Count == 0)
+            if (observerList.arraySize == 0)
             {
                 EditorGUILayout.HelpBox("No observers loaded!", MessageType.Error);
                 return;
             }
-            
+
             EditorGUILayout.LabelField("Observers loaded:", GUILayout.Width(180));
 
-            foreach (var observer in TPTooltipDesigner.TooltipCreator.Observers)
+            TPTooltipDesigner.creator.Update();
+            observerList.serializedObject.Update();
+            ShowObservers(observerList);
+            observerList.serializedObject.ApplyModifiedProperties();
+            TPTooltipDesigner.creator.ApplyModifiedProperties();
+        }
+
+        void ShowObservers(SerializedProperty list)
+        {
+            GUILayout.BeginHorizontal();
+            EditorGUILayout.PropertyField(list, content, false);
+            if (Event.current.type == EventType.DragPerform && DragAndDrop.objectReferences.Length > 1)
+                return;
+
+            EditorGUILayout.PropertyField(list.FindPropertyRelative("Array.size"), GUIContent.none, GUILayout.Width(90));
+            GUILayout.EndHorizontal();
+            int length = list.arraySize;
+            for (int i = 0; i < length; i++)
             {
                 GUILayout.BeginHorizontal();
-                EditorGUILayout.ObjectField(observer, typeof(GameObject), true, GUILayout.Width(200));
-                //DrawObservers(observer);
-                EditAsset(observer);
-                RemoveAsset(observer);
+                EditorGUILayout.PropertyField(list.GetArrayElementAtIndex(i), GUIContent.none);
+                Check(list, i);
+                SetType(list, i);
+                EditAsset(list, i);
+                RemoveAsset(list, i);
                 GUILayout.EndHorizontal();
-                //EditorUtility.SetDirty((observer as UnityEngine.Object) == null ? this : (observer as UnityEngine.Object));
+            }
+        }
+        void Check(SerializedProperty list, int index)
+        {
+            int length = list.arraySize;
+            for (int i = 0; i < length; i++)
+            {
+                if (i == index)
+                    continue;
+                if (list.GetArrayElementAtIndex(index).objectReferenceValue == list.GetArrayElementAtIndex(i).objectReferenceValue)
+                {
+                    list.GetArrayElementAtIndex(i).objectReferenceValue = null;
+                }
+            }
+        }
+
+        void RemoveAsset(SerializedProperty list, int index)
+        {
+            if (GUILayout.Button("Remove", GUILayout.Width(60)))
+            {
+                if (list.GetArrayElementAtIndex(index).objectReferenceValue != null || index == list.arraySize - 1)
+                    list.DeleteArrayElementAtIndex(index);
             }
         }
 
         void AddObserver()
         {
-            TPTooltipDesigner.TooltipCreator.Observers.Add(null);
+            observerList.arraySize++;
+            observerList.serializedObject.ApplyModifiedProperties();
             TPTooltipDesigner.UpdateManager();
-            //observerObjs.Add();
-            //observerObjs.Clear();
-            //observerProps.Clear();
-        }
-        void RemoveObserver(TPTooltipObserver observer)
-        {
-            TPTooltipDesigner.TooltipCreator.Observers.Remove(observer);
         }
 
-        void RemoveAsset(TPTooltipObserver observer)
+        void EditAsset(SerializedProperty list, int index)
         {
-            if (GUILayout.Button("Remove", GUILayout.Width(60)))
-            {
-                RemoveObserver(observer);
-            }
+            if (list.GetArrayElementAtIndex(index).objectReferenceValue != null)
+                if (GUILayout.Button("Edit", GUILayout.Width(35)))
+                {
+                    AssetDatabase.OpenAsset(list.GetArrayElementAtIndex(index).objectReferenceValue);
+                }
         }
 
-        //List<SerializedObject> observerObjs = new List<SerializedObject>();
-        //List<SerializedProperty> observerProps = new List<SerializedProperty>();
-        //int iterator = 0;
-
-        //void DrawObservers(UnityEngine.Object _object)
-        //{
-        //    if (observerObjs.Count != TPTooltipDesigner.TooltipCreator.Observers.Count)
-        //    {
-        //        SerializedObject observerObj = new SerializedObject(_object);
-        //        SerializedProperty observerProp = observerObj.FindProperty("IsEquipSlot");
-        //        observerObjs.Add(observerObj);
-        //        observerProps.Add(observerProp);
-
-        //        EditorGUILayout.PropertyField(observerProp, GUIContent.none, GUILayout.Width(30));
-        //        observerObj.ApplyModifiedProperties();
-        //    }
-        //    else
-        //    {
-        //        EditorGUILayout.PropertyField(observerProps[iterator], GUIContent.none, GUILayout.Width(30));
-        //        observerObjs[iterator].ApplyModifiedProperties();
-        //        iterator++;
-        //        if (iterator >= observerObjs.Count)
-        //            iterator = 0;
-        //    }
-
-        //}
-
-        void EditAsset(UnityEngine.Object obj)
+        void SetType(SerializedProperty list, int index)
         {
-            if (GUILayout.Button("Edit", GUILayout.Width(35)))
-            {
-                AssetDatabase.OpenAsset(obj);
-            }
+            if (list.GetArrayElementAtIndex(index).objectReferenceValue == null)
+                return;
+            if ((list.GetArrayElementAtIndex(index).objectReferenceValue as GameObject).GetComponent<TPTooltipObserver>() == null)
+                return;
+
+            int actualSelected = 1;
+            int selectionFromInspector =
+                (int)(list.GetArrayElementAtIndex(index).objectReferenceValue as GameObject).GetComponent<TPTooltipObserver>().SetType;
+
+            actualSelected = EditorGUILayout.Popup( selectionFromInspector, enumNamesList, GUILayout.Width(70));
+
+            (list.GetArrayElementAtIndex(index).objectReferenceValue as GameObject).GetComponent<TPTooltipObserver>().SetType
+                = actualSelected == 1 ? TPTooltipObserver.ToolTipType.Static : TPTooltipObserver.ToolTipType.Dynamic;
         }
 
         void DrawPreview()
         {
+            EditorGUILayout.PropertyField(offset);
+            offset.serializedObject.ApplyModifiedProperties();
+            GUILayout.BeginArea(new Rect(0, 50, Screen.width, Screen.height));
+            GUI.DrawTexture(leftUp, previewTexture);
+            GUI.DrawTexture(leftDown, previewTexture);
 
+            GUI.DrawTexture(center, previewTexture);
+
+            GUI.DrawTexture(rightUp, previewTexture);
+            GUI.DrawTexture(rightDown, previewTexture);
+
+            Event e = Event.current;
+            GUI.DrawTexture(new Rect(
+                (e.mousePosition.x - tooltipTexture.width / 2) + offset.vector2Value.x,
+                (e.mousePosition.y - tooltipTexture.height / 2) + offset.vector2Value.y,
+                tooltipTexture.width,
+                tooltipTexture.height),
+                tooltipTexture);
+            GUILayout.EndArea();
+        }
+
+        void Update()
+        {
+            if(tool == ToolEnum.Preview)
+                Repaint();
         }
     }
 }

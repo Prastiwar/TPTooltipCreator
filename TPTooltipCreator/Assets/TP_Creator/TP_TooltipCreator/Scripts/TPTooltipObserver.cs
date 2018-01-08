@@ -5,6 +5,12 @@ namespace TP_TooltipCreator
 {
     public class TPTooltipObserver : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
+        public enum ToolTipType
+        {
+            Dynamic,
+            Static
+        }
+        public ToolTipType SetType;
         TPTooltipCreator tooltipCreator;
 
         void OnValidate()
@@ -19,7 +25,7 @@ namespace TP_TooltipCreator
 
         public void OnPointerEnter(PointerEventData eventData)
         {
-            tooltipCreator.OnPointerEnter(eventData);
+            tooltipCreator.OnPointerEnter(eventData, SetType);
         }
         public void OnPointerExit(PointerEventData eventData)
         {

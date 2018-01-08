@@ -6,11 +6,12 @@ using System.Collections.Generic;
 
 namespace TP_TooltipCreator
 {
-    public class TPTooltipCreator : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+    public class TPTooltipCreator : MonoBehaviour
     {
-        public List<TPTooltipObserver> Observers;
         public GameObject TooltipLayout;
+        public Vector2 Offset;
         public TPTooltipObserver OnObserver;
+        public List<TPTooltipObserver> Observers = new List<TPTooltipObserver>();
 
         Image PanelImage;
         Transform Panel;
@@ -18,6 +19,7 @@ namespace TP_TooltipCreator
         PointerEventData _eventData;
         WaitWhile Wait;
 
+        [SerializeField] List<GameObject> GMObservers;
 
         void OnValidate()
         {
@@ -37,37 +39,50 @@ namespace TP_TooltipCreator
                 if (Panel == null) Panel = PanelImage.transform;
             }
 
-            foreach (var Observer in Observers)
+            Observers.Clear();
+
+            foreach (var Observer in GMObservers)
             {
-                if (!Observer.GetComponent<TPTooltipObserver>()) // doesnt work
-                    Observer.gameObject.AddComponent<TPTooltipObserver>();
+                if (Observer != null)
+                {
+                    if (Observer.GetComponent<TPTooltipObserver>())
+                        Observers.Add(Observer.GetComponent<TPTooltipObserver>());
+                    else
+                        Observers.Add(Observer.gameObject.AddComponent<TPTooltipObserver>());
+                }
             }
         }
 
-        public void OnPointerEnter(PointerEventData eventData)
+        public void OnPointerEnter(PointerEventData eventData, TPTooltipObserver.ToolTipType Type)
         {
-            //if(eventData.pointerEnter.GetComponent<TPTooltipObserver>() != null)
             OnObserver = eventData.pointerEnter.GetComponent<TPTooltipObserver>();
             _eventData = eventData;
-            TooltipLayout.SetActive(true);
-            StartCoroutine(ToolTipPositioning());
+            Animate(true);
+
+            if(Type == TPTooltipObserver.ToolTipType.Dynamic)
+                StartCoroutine(ToolTipPositioning());
         }
 
         public void OnPointerExit(PointerEventData eventData)
         {
             OnObserver = null;
             _eventData = null;
-            TooltipLayout.SetActive(false);
+            Animate(false);
         }
 
         IEnumerator ToolTipPositioning()
         {
             while (_eventData != null)
             {
-                PanelVector2 = _eventData.position;
+                PanelVector2 = _eventData.position + Offset;
                 Panel.position = PanelVector2;
                 yield return Wait;
             }
+        }
+
+        public virtual void Animate(bool SetActive)
+        {
+            TooltipLayout.SetActive(SetActive);
         }
     }
 }
