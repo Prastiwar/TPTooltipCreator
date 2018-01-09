@@ -51,15 +51,37 @@ namespace TP_TooltipEditor
         void InitEditorData()
         {
             EditorData = AssetDatabase.LoadAssetAtPath(
-                   "Assets/TP_Creator/TP_TooltipCreator/EditorResources/EditorGUIData.asset",
+                   "Assets/TP_Creator/TP_TooltipCreator/EditorResources/TooltipEditorGUIData.asset",
                    typeof(TPTooltipGUIData)) as TPTooltipGUIData;
-
+            
             if (EditorData == null)
-            {
-                Debug.Log("Editor Data didn't found! Check path: 'Assets/TP_Creator/TP_TooltipCreator/EditorResources/EditorGUIData.asset'");
-                return;
-            }
+                CreateEditorData();
+            else
+                CheckGUIData();
+
             skin = EditorData.GUISkin;
+        }
+        void CheckGUIData()
+        {
+            if (EditorData.GUISkin == null)
+                EditorData.GUISkin = AssetDatabase.LoadAssetAtPath(
+                      "Assets/TP_Creator/TP_TooltipCreator/EditorResources/TPTooltipGUISkin.guiskin",
+                      typeof(GUISkin)) as GUISkin;
+
+            if (EditorData.TooltipPrefab == null)
+                EditorData.TooltipPrefab = AssetDatabase.LoadAssetAtPath(
+                    "Assets/TP_Creator/TP_TooltipCreator/EditorResources/TooltipEditorGUIData.asset",
+                    typeof(GameObject)) as GameObject;
+        }
+
+        void CreateEditorData()
+        {
+            TPTooltipGUIData newEditorData = ScriptableObject.CreateInstance<TPTooltipGUIData>();
+            AssetDatabase.CreateAsset(newEditorData, "Assets/TP_Creator/TP_TooltipCreator/EditorResources/TooltipEditorGUIData.asset");
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+            EditorData = newEditorData;
+            CheckGUIData();
         }
 
         void InitTextures()

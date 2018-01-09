@@ -48,7 +48,7 @@ namespace TP_TooltipEditor
         bool toggleItems = false;
         bool[] showBools = new bool[3];
 
-        static float windowSize = 400;
+        static float windowSize = 450;
         static float windowPreviewSize = 600;
 
         public static void OpenToolWindow(ToolEnum _tool)
@@ -103,14 +103,10 @@ namespace TP_TooltipEditor
             mainTexture.SetPixel(0, 0, color);
             mainTexture.Apply();
 
-            previewTexture = new Texture2D(100, 100);
-            previewTexture.SetPixel(0, 0, Color.red);
-            previewTexture.Apply();
-
-            InitPreviewTexture();
+            InitPreviewTextures();
         } 
 
-        void InitPreviewTexture()
+        void InitPreviewTextures()
         {
             if (tool != ToolEnum.Preview)
                 return;
@@ -120,6 +116,13 @@ namespace TP_TooltipEditor
                 Debug.LogError("No layout loaded! Change it in 'Layout' tool");
                 return;
             }
+
+            previewTexture = new Texture2D(100, 100);
+            previewTexture.SetPixel(0, 0, Color.red);
+            previewTexture.Apply();
+            previewTexture = AssetDatabase.LoadAssetAtPath(
+                "Assets/TP_Creator/TP_TooltipCreator/EditorResources/preview.png", typeof(Texture2D)) as Texture2D;
+
             var panel = TPTooltipDesigner.TooltipCreator.TooltipLayout.PanelTransform.GetComponent<RectTransform>().rect;
             tooltipTexture = new Texture2D((int)panel.width, (int)panel.height);
             tooltipTexture.SetPixel(0, 0, Color.white);
@@ -247,10 +250,10 @@ namespace TP_TooltipEditor
             int selectionFromInspector =
                 (int)(list.GetArrayElementAtIndex(index).objectReferenceValue as GameObject).GetComponent<TPTooltipObserver>().SetType;
 
-            actualSelected = EditorGUILayout.Popup( selectionFromInspector, enumNamesList, GUILayout.Width(70));
+            actualSelected = EditorGUILayout.Popup( selectionFromInspector, enumNamesList, GUILayout.Width(100));
 
             (list.GetArrayElementAtIndex(index).objectReferenceValue as GameObject).GetComponent<TPTooltipObserver>().SetType
-                = actualSelected == 1 ? TPTooltipObserver.ToolTipType.Static : TPTooltipObserver.ToolTipType.Dynamic;
+                = (TPTooltipObserver.ToolTipType)actualSelected;
         }
 
         void DrawPreviewTool()
@@ -269,11 +272,16 @@ namespace TP_TooltipEditor
             GUI.DrawTexture(rightDown, previewTexture);
 
             Event e = Event.current;
-            Vector2 pos = (e.mousePosition - (textureVec / 2)) + offset.vector2Value;
-            pos.Set(Mathf.Clamp(pos.x, 0, window.maxSize.x - (tooltipTexture.width)),
-                Mathf.Clamp(pos.y, 0, window.maxSize.y - (tooltipTexture.height + 50)));
-            Rect rect = new Rect(pos, textureVec);
-            GUI.DrawTexture(rect, tooltipTexture);
+            if (leftUp.Contains(e.mousePosition) || leftDown.Contains(e.mousePosition) ||
+                center.Contains(e.mousePosition) || rightUp.Contains(e.mousePosition) || rightDown.Contains(e.mousePosition))
+            {
+                Vector2 pos = (e.mousePosition - (textureVec / 2)) + offset.vector2Value;
+                pos.Set(Mathf.Clamp(pos.x, 0, window.maxSize.x - (tooltipTexture.width)),
+                    Mathf.Clamp(pos.y, 0, window.maxSize.y - (tooltipTexture.height + 50)));
+                Rect rect = new Rect(pos, textureVec);
+                GUI.DrawTexture(rect, tooltipTexture);
+            }
+
             GUILayout.EndArea();
         }
 
@@ -340,5 +348,5 @@ namespace TP_TooltipEditor
             }
         }
 
-    }
+    } 
 }

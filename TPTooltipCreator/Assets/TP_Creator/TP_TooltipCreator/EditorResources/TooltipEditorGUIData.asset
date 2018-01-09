@@ -9,10 +9,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7272a800be7019a44a513171421c71f6, type: 3}
-  m_Name: EditorGUIData
+  m_Name: TooltipEditorGUIData
   m_EditorClassIdentifier: 
-  GUISkin: {fileID: 11400000, guid: 2ad09642b4244db40901625ac70d36ff, type: 2}
-  InventoryDataPath: TP_Creator/TP_InventoryCreator/InventoryData/
-  InventoryAssetsPath: TP_Creator/TP_InventoryCreator/InventoryData/
-  InventoryPrefab: {fileID: 1832101627673266, guid: a829bbb4ccc9d69449d735aeddeaa6b7,
-    type: 2}
+  GUISkin: {fileID: 0}
+  TooltipPrefab: {fileID: 0}

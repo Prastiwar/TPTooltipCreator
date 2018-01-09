@@ -8,7 +8,6 @@ namespace TP_TooltipCreator
 {
     public class TPTooltipCreator : MonoBehaviour
     {
-        //public GameObject TooltipLayout;
         public TPTooltipLayout TooltipLayout;
         public Vector2 Offset;
         public TPTooltipObserver OnObserver;
@@ -59,11 +58,15 @@ namespace TP_TooltipCreator
 
         public void OnPointerEnter(PointerEventData eventData)
         {
+            if (eventData == null)
+                return;
+
             OnObserver = eventData.pointerEnter.GetComponent<TPTooltipObserver>();
             _eventData = eventData;
             Animate(true);
 
-            if(OnObserver.SetType == TPTooltipObserver.ToolTipType.Dynamic)
+            if(OnObserver.SetType == TPTooltipObserver.ToolTipType.DynamicEnter ||
+                OnObserver.SetType == TPTooltipObserver.ToolTipType.DynamicClick)
                 StartCoroutine(ToolTipPositioning());
         }
 

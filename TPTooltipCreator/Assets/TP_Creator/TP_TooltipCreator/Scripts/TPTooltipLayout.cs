@@ -17,7 +17,7 @@ namespace TP_TooltipCreator
         public Transform ImagesParent;
         public Transform ButtonsParent;
 
-        TPTooltipCreator creator;
+        //TPTooltipCreator creator;
 
         void OnValidate()
         {
@@ -25,7 +25,7 @@ namespace TP_TooltipCreator
         }
         void Awake()
         {
-            creator = FindObjectOfType<TPTooltipCreator>();
+            //creator = FindObjectOfType<TPTooltipCreator>();
 
             Refresh();
         }
