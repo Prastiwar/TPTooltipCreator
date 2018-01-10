@@ -43,7 +43,8 @@ namespace TP_TooltipEditor
             InitTextures();
             InitCreator();
 
-            creator = new SerializedObject(TooltipCreator);
+            if(TooltipCreator)
+                creator = new SerializedObject(TooltipCreator);
         }
 
         void InitEditorData()
@@ -68,7 +69,7 @@ namespace TP_TooltipEditor
 
             if (EditorData.TooltipPrefab == null)
                 EditorData.TooltipPrefab = AssetDatabase.LoadAssetAtPath(
-                    "Assets/TP_Creator/TP_TooltipCreator/EditorResources/TooltipEditorGUIData.asset",
+                    "Assets/TP_Creator/TP_TooltipCreator/EditorResources/TooltipCanvas.prefab",
                     typeof(GameObject)) as GameObject;
         }
 
@@ -205,16 +206,26 @@ namespace TP_TooltipEditor
 
         public static void UpdateManager()
         {
-            TooltipCreator.Refresh();
-            TooltipCreator.TooltipLayout.Refresh();
+            if(TooltipCreator.TooltipLayout != null)
+                TooltipCreator.TooltipLayout.Refresh();
             if(creator != null)
                 creator.ApplyModifiedProperties();
+            if(TooltipCreator)
+                TooltipCreator.Refresh();
         }
 
         void DrawTools()
         {
+
             GUILayout.BeginArea(toolSection);
             GUILayout.Label("Tooltip Manager - Tools", skin.box);
+
+            if (TooltipCreator == null)
+            {
+                GUILayout.EndArea();
+                return;
+            }
+
             if (GUILayout.Button("Dynamic Offset", skin.button, GUILayout.Height(60)))
             {
                 TPTooltipToolsWindow.OpenToolWindow(TPTooltipToolsWindow.ToolEnum.Preview);

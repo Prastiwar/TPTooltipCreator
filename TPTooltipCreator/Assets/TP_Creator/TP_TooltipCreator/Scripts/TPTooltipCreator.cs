@@ -47,6 +47,9 @@ namespace TP_TooltipCreator
 
             Observers.Clear();
 
+            if (OBJObservers == null)
+                return;
+
             foreach (var Observer in OBJObservers)
             {
                 if (Observer != null)

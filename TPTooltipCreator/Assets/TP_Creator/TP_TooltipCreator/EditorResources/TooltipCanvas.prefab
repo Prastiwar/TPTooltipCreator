@@ -21,6 +21,7 @@ GameObject:
   - component: {fileID: 224955080267889296}
   - component: {fileID: 223638282571270208}
   - component: {fileID: 114988914004300064}
+  - component: {fileID: 225780559402617282}
   - component: {fileID: 114758573621566558}
   m_Layer: 5
   m_Name: TooltipCanvas
@@ -1502,3 +1503,14 @@ RectTransform:
   m_AnchoredPosition: {x: 91.2, y: -100.34}
   m_SizeDelta: {x: 150.1, y: 13.42}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!225 &225780559402617282
+CanvasGroup:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1201783215068698}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0

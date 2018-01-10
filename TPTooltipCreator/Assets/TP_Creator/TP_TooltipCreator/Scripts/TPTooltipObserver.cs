@@ -12,7 +12,9 @@ namespace TP_TooltipCreator
             StaticEnter,
             StaticClick
         }
-        public ToolTipType SetType;
+        [HideInInspector] public ToolTipType SetType;
+        [HideInInspector] public bool IsObserving = true;
+
         TPTooltipCreator tooltipCreator;
 
         void OnValidate()
@@ -27,17 +29,26 @@ namespace TP_TooltipCreator
 
         public void OnPointerClick(PointerEventData eventData)
         {
+            if (!IsObserving)
+                return;
+
             if (SetType == ToolTipType.DynamicClick || SetType == ToolTipType.StaticClick)
                 tooltipCreator.OnPointerEnter(eventData);
         }
         public void OnPointerEnter(PointerEventData eventData)
         {
+            if (!IsObserving)
+                return;
+
             if (SetType == ToolTipType.DynamicEnter || SetType == ToolTipType.StaticEnter)
                 tooltipCreator.OnPointerEnter(eventData);
         }
         public void OnPointerExit(PointerEventData eventData)
         {
-            if(SetType != ToolTipType.StaticClick)
+            if (!IsObserving)
+                return;
+
+            if (SetType != ToolTipType.StaticClick)
                 tooltipCreator.OnPointerExit(eventData);
         }
     }

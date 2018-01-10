@@ -28,8 +28,8 @@ namespace TP_TooltipEditor
         SerializedProperty layoutTextsParent;
         SerializedProperty layoutImagesParent;
         SerializedProperty layoutButtonsParent;
-
-        SerializedProperty observerList;
+        
+        SerializedProperty observerOBJList;
         SerializedProperty offset;
 
         GUIContent content = new GUIContent("You can drag there multiple observers   |  Size");
@@ -56,6 +56,9 @@ namespace TP_TooltipEditor
 
         public static void OpenToolWindow(ToolEnum _tool)
         {
+            if (window != null)
+                window.Close();
+
             tool = _tool;
             window = (TPTooltipToolsWindow)GetWindow(typeof(TPTooltipToolsWindow));
             if (tool == ToolEnum.Preview)
@@ -75,10 +78,20 @@ namespace TP_TooltipEditor
         {
             InitTextures();
             InitRects();
-            TooltipLayout = new SerializedObject(TPTooltipDesigner.TooltipCreator.TooltipLayout);
-            observerList = TPTooltipDesigner.creator.FindProperty("OBJObservers");
+            if(TPTooltipDesigner.TooltipCreator.TooltipLayout)
+                TooltipLayout = new SerializedObject(TPTooltipDesigner.TooltipCreator.TooltipLayout);
+            observerOBJList = TPTooltipDesigner.creator.FindProperty("OBJObservers");
             offset = TPTooltipDesigner.creator.FindProperty("Offset");
             tooltipLayout = TPTooltipDesigner.creator.FindProperty("TooltipLayout");
+
+            FindLayoutProperties();
+        }
+
+        void FindLayoutProperties()
+        {
+            if (TooltipLayout == null)
+                return;
+
             layoutTexts = TooltipLayout.FindProperty("Texts");
             layoutImages = TooltipLayout.FindProperty("Images");
             layoutButtons = TooltipLayout.FindProperty("Buttons");
@@ -116,7 +129,7 @@ namespace TP_TooltipEditor
         {
             if (TPTooltipDesigner.TooltipCreator.TooltipLayout == null)
             {
-                Debug.LogError("No layout loaded! Change it in 'Layout' tool");
+                if(tool == ToolEnum.Preview) Debug.LogError("No layout loaded! Change it in 'Layout' tool");
                 return;
             }
 
@@ -162,6 +175,9 @@ namespace TP_TooltipEditor
         
         void DrawObserverTool()
         {
+            if (observerOBJList == null)
+                return;
+
             if (GUILayout.Button("Add new", TPTooltipDesigner.EditorData.GUISkin.button))
             {
                 AddObserver();
@@ -170,7 +186,7 @@ namespace TP_TooltipEditor
             {
                 AutoFindObservers();
             }
-            if (observerList.arraySize == 0)
+            if (observerOBJList.arraySize == 0)
             {
                 EditorGUILayout.HelpBox("No observers loaded!", MessageType.Error);
                 return;
@@ -179,19 +195,19 @@ namespace TP_TooltipEditor
             EditorGUILayout.LabelField("Observers loaded:", GUILayout.Width(180));
 
             TPTooltipDesigner.creator.Update();
-            observerList.serializedObject.Update();
-            ShowObservers(observerList);
+            observerOBJList.serializedObject.Update();
+            ShowObservers(observerOBJList);
         }
 
         void AutoFindObservers()
         {
             TPTooltipObserver[] observersFound = FindObjectsOfType<TPTooltipObserver>();
             int length = observersFound.Length;
-            observerList.arraySize = length;
+            observerOBJList.arraySize = length;
             for (int i = 0; i < length; i++)
             {
-                observerList.GetArrayElementAtIndex(i).objectReferenceValue = observersFound[i].gameObject;
-                observerList.serializedObject.ApplyModifiedProperties();
+                observerOBJList.GetArrayElementAtIndex(i).objectReferenceValue = observersFound[i].gameObject;
+                observerOBJList.serializedObject.ApplyModifiedProperties();
             }
         }
 
@@ -204,11 +220,16 @@ namespace TP_TooltipEditor
 
             EditorGUILayout.PropertyField(list.FindPropertyRelative("Array.size"), GUIContent.none, GUILayout.Width(90));
             GUILayout.EndHorizontal();
+            GUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("", GUILayout.Width(175));
+            EditorGUILayout.LabelField("Is Observing?");
+            GUILayout.EndHorizontal();
             int length = list.arraySize;
             for (int i = 0; i < length; i++)
             {
                 GUILayout.BeginHorizontal();
                 EditorGUILayout.PropertyField(list.GetArrayElementAtIndex(i), GUIContent.none);
+                ToggleObserving(list, i);
                 Check(list, i);
                 SetType(list, i);
                 EditAsset(list, i);
@@ -216,7 +237,22 @@ namespace TP_TooltipEditor
                 GUILayout.EndHorizontal();
             }
             if (GUI.changed)
-                observerList.serializedObject.ApplyModifiedProperties();
+                observerOBJList.serializedObject.ApplyModifiedProperties();
+        }
+
+        void ToggleObserving(SerializedProperty list, int index)
+        {
+            if (list.GetArrayElementAtIndex(index).objectReferenceValue == null ||
+                (list.GetArrayElementAtIndex(index).objectReferenceValue as GameObject).GetComponent<TPTooltipObserver>() == null)
+                return;
+
+            (list.GetArrayElementAtIndex(index).objectReferenceValue as GameObject).GetComponent<TPTooltipObserver>().IsObserving =
+                EditorGUILayout.Toggle(
+                    (list.GetArrayElementAtIndex(index).objectReferenceValue as GameObject).GetComponent<TPTooltipObserver>().IsObserving,
+                    GUILayout.Width(15));
+
+            if (GUI.changed)
+                observerOBJList.serializedObject.ApplyModifiedProperties();
         }
 
         void Check(SerializedProperty list, int index)
@@ -238,14 +274,22 @@ namespace TP_TooltipEditor
             if (GUILayout.Button("Remove", GUILayout.Width(60)))
             {
                 if (list.GetArrayElementAtIndex(index).objectReferenceValue != null || index == list.arraySize - 1)
+                {
+                    if (list.GetArrayElementAtIndex(index).objectReferenceValue != null)
+                    {
+                        TPTooltipObserver script = (list.GetArrayElementAtIndex(index).objectReferenceValue as GameObject).GetComponent<TPTooltipObserver>();
+                        DestroyImmediate(script);
+                        list.GetArrayElementAtIndex(index).objectReferenceValue = null;
+                    }
                     list.DeleteArrayElementAtIndex(index);
+                }
             }
         }
 
         void AddObserver()
         {
-            observerList.arraySize++;
-            observerList.serializedObject.ApplyModifiedProperties();
+            observerOBJList.arraySize++;
+            observerOBJList.serializedObject.ApplyModifiedProperties();
             TPTooltipDesigner.UpdateManager();
         }
 
@@ -314,11 +358,16 @@ namespace TP_TooltipEditor
         {
             EditorGUILayout.LabelField("Put there parent of your Tooltip Layout", TPTooltipDesigner.skin.GetStyle("TipLabel"));
             EditorGUILayout.PropertyField(tooltipLayout, GUIContent.none, GUILayout.Height(30));
+
             if (GUI.changed)
             {
                 TPTooltipDesigner.UpdateManager();
+                if (TPTooltipDesigner.TooltipCreator.TooltipLayout)
+                    TooltipLayout = new SerializedObject(TPTooltipDesigner.TooltipCreator.TooltipLayout);
+                tooltipLayout.serializedObject.ApplyModifiedProperties();
                 toggleItems = tooltipLayout.objectReferenceValue != null ? true : false;
             }
+
             EditorGUILayout.Space();
 
             if (toggleItems)
@@ -332,14 +381,24 @@ namespace TP_TooltipEditor
                     ToggleShow(2);
                 EditorGUILayout.EndHorizontal();
 
+                if (layoutTextsParent == null || layoutImagesParent == null || layoutButtonsParent == null)
+                {
+                    FindLayoutProperties();
+                    return;
+                }
+
                 EditorGUILayout.BeginHorizontal();
+                
                 EditorGUILayout.PropertyField(layoutTextsParent, GUIContent.none);
                 EditorGUILayout.PropertyField(layoutImagesParent, GUIContent.none);
                 EditorGUILayout.PropertyField(layoutButtonsParent, GUIContent.none);
+
                 if (GUI.changed)
                 {
+                    TooltipLayout.ApplyModifiedProperties();
                     TPTooltipDesigner.UpdateManager();
                 }
+
                 EditorGUILayout.EndHorizontal();
 
                 EditorGUILayout.Space();
@@ -364,6 +423,8 @@ namespace TP_TooltipEditor
         
         void DrawItem(SerializedProperty layout)
         {
+            layout.serializedObject.Update();
+
             if (layout.arraySize == 0)
             {
                 EditorGUILayout.HelpBox("Nothing loaded!", MessageType.Error);

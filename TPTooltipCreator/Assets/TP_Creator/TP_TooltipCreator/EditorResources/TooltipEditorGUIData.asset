@@ -11,6 +11,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7272a800be7019a44a513171421c71f6, type: 3}
   m_Name: TooltipEditorGUIData
   m_EditorClassIdentifier: 
-  GUISkin: {fileID: 11400000, guid: 2ad09642b4244db40901625ac70d36ff, type: 2}
-  TooltipPrefab: {fileID: 1201783215068698, guid: b9be9d467252cf74bb8f0ca6df890c97,
-    type: 2}
+  GUISkin: {fileID: 0}
+  TooltipPrefab: {fileID: 0}
