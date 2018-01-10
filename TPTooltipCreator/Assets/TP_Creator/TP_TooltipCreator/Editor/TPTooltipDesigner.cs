@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEditor;
 using TP_TooltipCreator;
 
@@ -111,14 +109,6 @@ namespace TP_TooltipEditor
                 if (TooltipCreator != null)
                     UpdateManager();
             }
-
-            //var data = AssetDatabase.LoadAssetAtPath("Assets/" + EditorData.InventoryDataPath + "InventoryData" + ".asset",
-            //    typeof(TPInventoryData));
-
-            //if (data == null)
-            //    CreateInventoryData();
-            //else
-            //    (data as TPInventoryData).Refresh();
         }
 
         void OnGUI()

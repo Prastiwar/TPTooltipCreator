@@ -4,7 +4,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEditor;
 using TP_TooltipCreator;
-using TMPro;
 
 namespace TP_TooltipEditor
 {
@@ -22,12 +21,16 @@ namespace TP_TooltipEditor
         string[] enumNamesList = System.Enum.GetNames(typeof(TPTooltipObserver.ToolTipType));
 
         SerializedObject TooltipLayout;
+        SerializedProperty tooltipLayout;
         SerializedProperty layoutTexts;
         SerializedProperty layoutImages;
         SerializedProperty layoutButtons;
+        SerializedProperty layoutTextsParent;
+        SerializedProperty layoutImagesParent;
+        SerializedProperty layoutButtonsParent;
+
         SerializedProperty observerList;
         SerializedProperty offset;
-        SerializedProperty tooltipLayout;
 
         GUIContent content = new GUIContent("You can drag there multiple observers   |  Size");
 
@@ -73,12 +76,15 @@ namespace TP_TooltipEditor
             InitTextures();
             InitRects();
             TooltipLayout = new SerializedObject(TPTooltipDesigner.TooltipCreator.TooltipLayout);
-            observerList = TPTooltipDesigner.creator.FindProperty("GMObservers");
+            observerList = TPTooltipDesigner.creator.FindProperty("OBJObservers");
             offset = TPTooltipDesigner.creator.FindProperty("Offset");
             tooltipLayout = TPTooltipDesigner.creator.FindProperty("TooltipLayout");
             layoutTexts = TooltipLayout.FindProperty("Texts");
             layoutImages = TooltipLayout.FindProperty("Images");
             layoutButtons = TooltipLayout.FindProperty("Buttons");
+            layoutTextsParent = TooltipLayout.FindProperty("TextsParent");
+            layoutImagesParent = TooltipLayout.FindProperty("ImagesParent");
+            layoutButtonsParent = TooltipLayout.FindProperty("ButtonsParent");
 
             toggleItems = tooltipLayout.objectReferenceValue != null ? true : false;
         }
@@ -108,9 +114,6 @@ namespace TP_TooltipEditor
 
         void InitPreviewTextures()
         {
-            if (tool != ToolEnum.Preview)
-                return;
-
             if (TPTooltipDesigner.TooltipCreator.TooltipLayout == null)
             {
                 Debug.LogError("No layout loaded! Change it in 'Layout' tool");
@@ -156,12 +159,16 @@ namespace TP_TooltipEditor
                     break;
             }
         }
-
+        
         void DrawObserverTool()
         {
             if (GUILayout.Button("Add new", TPTooltipDesigner.EditorData.GUISkin.button))
             {
                 AddObserver();
+            }
+            if (GUILayout.Button("Automatically find all Observer's", TPTooltipDesigner.EditorData.GUISkin.button))
+            {
+                AutoFindObservers();
             }
             if (observerList.arraySize == 0)
             {
@@ -174,8 +181,18 @@ namespace TP_TooltipEditor
             TPTooltipDesigner.creator.Update();
             observerList.serializedObject.Update();
             ShowObservers(observerList);
-            observerList.serializedObject.ApplyModifiedProperties();
-            TPTooltipDesigner.creator.ApplyModifiedProperties();
+        }
+
+        void AutoFindObservers()
+        {
+            TPTooltipObserver[] observersFound = FindObjectsOfType<TPTooltipObserver>();
+            int length = observersFound.Length;
+            observerList.arraySize = length;
+            for (int i = 0; i < length; i++)
+            {
+                observerList.GetArrayElementAtIndex(i).objectReferenceValue = observersFound[i].gameObject;
+                observerList.serializedObject.ApplyModifiedProperties();
+            }
         }
 
         void ShowObservers(SerializedProperty list)
@@ -198,6 +215,8 @@ namespace TP_TooltipEditor
                 RemoveAsset(list, i);
                 GUILayout.EndHorizontal();
             }
+            if (GUI.changed)
+                observerList.serializedObject.ApplyModifiedProperties();
         }
 
         void Check(SerializedProperty list, int index)
@@ -312,6 +331,18 @@ namespace TP_TooltipEditor
                 if (GUILayout.Button("Show Buttons"))
                     ToggleShow(2);
                 EditorGUILayout.EndHorizontal();
+
+                EditorGUILayout.BeginHorizontal();
+                EditorGUILayout.PropertyField(layoutTextsParent, GUIContent.none);
+                EditorGUILayout.PropertyField(layoutImagesParent, GUIContent.none);
+                EditorGUILayout.PropertyField(layoutButtonsParent, GUIContent.none);
+                if (GUI.changed)
+                {
+                    TPTooltipDesigner.UpdateManager();
+                }
+                EditorGUILayout.EndHorizontal();
+
+                EditorGUILayout.Space();
 
                 if (showBools[0])
                     DrawItem(layoutTexts);

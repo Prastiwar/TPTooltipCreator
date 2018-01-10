@@ -8,18 +8,21 @@ namespace TP_TooltipCreator
 {
     public class TPTooltipCreator : MonoBehaviour
     {
-        public TPTooltipLayout TooltipLayout;
-        public Vector2 Offset;
-        public TPTooltipObserver OnObserver;
-        public List<TPTooltipObserver> Observers = new List<TPTooltipObserver>();
+        [HideInInspector] public TPTooltipLayout TooltipLayout;
+        [HideInInspector] public Transform StaticTransform;
+        [HideInInspector] public Vector2 Offset;
+        [HideInInspector] public TPTooltipObserver OnObserver;
+        [HideInInspector] public List<TPTooltipObserver> Observers = new List<TPTooltipObserver>();
 
-        [SerializeField] List<GameObject> GMObservers;
+        [SerializeField] List<GameObject> OBJObservers;
         PointerEventData _eventData;
         WaitWhile Wait;
         GameObject TooltipLayoutCanvas;
         Vector2 PanelVector2;
         float PanelHeight2;
         float PanelWidth2;
+        UnityEngine.Events.UnityAction OnEnterObserver;
+        UnityEngine.Events.UnityAction OnAnimate;
 
         void OnValidate()
         {
@@ -44,7 +47,7 @@ namespace TP_TooltipCreator
 
             Observers.Clear();
 
-            foreach (var Observer in GMObservers)
+            foreach (var Observer in OBJObservers)
             {
                 if (Observer != null)
                 {
@@ -65,9 +68,16 @@ namespace TP_TooltipCreator
             _eventData = eventData;
             Animate(true);
 
-            if(OnObserver.SetType == TPTooltipObserver.ToolTipType.DynamicEnter ||
+            if (OnObserver == null)
+                return;
+
+            if (OnObserver.SetType == TPTooltipObserver.ToolTipType.DynamicEnter ||
                 OnObserver.SetType == TPTooltipObserver.ToolTipType.DynamicClick)
                 StartCoroutine(ToolTipPositioning());
+            else
+                TooltipLayout.PanelTransform.position = StaticTransform.position;
+
+            OnEnterObserver();
         }
 
         public void OnPointerExit(PointerEventData eventData)
@@ -90,7 +100,7 @@ namespace TP_TooltipCreator
             }
         }
 
-        public virtual void Animate(bool SetActive)
+        void Animate(bool SetActive)
         {
             if (TooltipLayout == null)
             {
@@ -98,8 +108,25 @@ namespace TP_TooltipCreator
                 return;
             }
 
-            TooltipLayoutCanvas.SetActive(SetActive);
+            if (OnAnimate != null)
+                OnAnimate();
+            else
+                SetTooltipActive(SetActive);
+        }
 
+        public void SetOnEnterObserver(UnityEngine.Events.UnityAction action)
+        {
+            OnEnterObserver = action;
+        }
+
+        public void SetTooltipActive(bool SetActive)
+        {
+            TooltipLayoutCanvas.SetActive(SetActive);
+        }
+
+        public void SetAnimation(UnityEngine.Events.UnityAction action)
+        {
+            OnAnimate = action;
         }
     }
 }
