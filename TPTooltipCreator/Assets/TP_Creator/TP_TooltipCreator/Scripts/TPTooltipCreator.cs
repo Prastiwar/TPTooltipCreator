@@ -4,7 +4,7 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using System.Collections.Generic;
 
-namespace TP_TooltipCreator
+namespace TP_Tooltip
 {
     public class TPTooltipCreator : MonoBehaviour
     {
@@ -21,8 +21,15 @@ namespace TP_TooltipCreator
         Vector2 PanelVector2;
         float PanelHeight2;
         float PanelWidth2;
-        UnityEngine.Events.UnityAction OnEnterObserver;
-        UnityEngine.Events.UnityAction OnAnimate;
+
+        public delegate void OnActive(bool active);
+        OnActive ActiveTooltip;
+
+        public delegate void OnEnterObserver();
+        OnEnterObserver EnterObserver;
+
+        public delegate void OnExitObserver();
+        OnExitObserver ExitObserver;
 
         void OnValidate()
         {
@@ -69,7 +76,11 @@ namespace TP_TooltipCreator
 
             OnObserver = eventData.pointerEnter.GetComponent<TPTooltipObserver>();
             _eventData = eventData;
-            Animate(true);
+
+            if(EnterObserver != null)
+                EnterObserver();
+
+            SetActive(true);
 
             if (OnObserver == null)
                 return;
@@ -79,15 +90,17 @@ namespace TP_TooltipCreator
                 StartCoroutine(ToolTipPositioning());
             else
                 TooltipLayout.PanelTransform.position = StaticTransform.position;
-
-            OnEnterObserver();
         }
 
         public void OnPointerExit(PointerEventData eventData)
         {
             OnObserver = null;
             _eventData = null;
-            Animate(false);
+
+            if(ExitObserver != null)
+                ExitObserver();
+
+            SetActive(false);
         }
 
         IEnumerator ToolTipPositioning()
@@ -103,7 +116,7 @@ namespace TP_TooltipCreator
             }
         }
 
-        void Animate(bool SetActive)
+        void SetActive(bool SetActive)
         {
             if (TooltipLayout == null)
             {
@@ -111,15 +124,20 @@ namespace TP_TooltipCreator
                 return;
             }
 
-            if (OnAnimate != null)
-                OnAnimate();
+            if (ActiveTooltip != null)
+                ActiveTooltip(SetActive);
             else
                 SetTooltipActive(SetActive);
         }
 
-        public void SetOnEnterObserver(UnityEngine.Events.UnityAction action)
+        public void SetOnEnterObserver(OnEnterObserver onEnter)
         {
-            OnEnterObserver = action;
+            EnterObserver = onEnter;
+        }
+
+        public void SetOnExitObserver(OnExitObserver onExit)
+        {
+            ExitObserver = onExit;
         }
 
         public void SetTooltipActive(bool SetActive)
@@ -127,9 +145,9 @@ namespace TP_TooltipCreator
             TooltipLayoutCanvas.SetActive(SetActive);
         }
 
-        public void SetAnimation(UnityEngine.Events.UnityAction action)
+        public void SetOnActive(OnActive _activator)
         {
-            OnAnimate = action;
+            ActiveTooltip = _activator;
         }
     }
 }

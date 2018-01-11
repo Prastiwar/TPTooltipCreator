@@ -1,9 +1,6 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UI;
+﻿using UnityEngine;
 using UnityEditor;
-using TP_TooltipCreator;
+using TP_Tooltip;
 
 namespace TP_TooltipEditor
 {
@@ -323,9 +320,15 @@ namespace TP_TooltipEditor
         {
             if (TPTooltipDesigner.TooltipCreator.TooltipLayout == null)
                 return;
+
             EditorGUILayout.PropertyField(offset);
-            offset.serializedObject.ApplyModifiedProperties();
+            if (GUI.changed)
+                offset.serializedObject.ApplyModifiedProperties();
+
+            EditorGUILayout.LabelField("Hold on item to preview tooltip offset", TPTooltipDesigner.skin.label, GUILayout.Height(20));
+
             GUILayout.BeginArea(new Rect(0, 50, Screen.width, Screen.height));
+
             GUI.DrawTexture(leftUp, previewTexture);
             GUI.DrawTexture(leftDown, previewTexture);
 
@@ -381,6 +384,14 @@ namespace TP_TooltipEditor
                     ToggleShow(2);
                 EditorGUILayout.EndHorizontal();
 
+                EditorGUILayout.Space();
+
+                EditorGUILayout.BeginHorizontal();
+                EditorGUILayout.LabelField("Text's Parent", TPTooltipDesigner.skin.GetStyle("TipLabel"), GUILayout.Width(140), GUILayout.Height(14));
+                EditorGUILayout.LabelField("Image's Parent", TPTooltipDesigner.skin.GetStyle("TipLabel"), GUILayout.Width(140), GUILayout.Height(14));
+                EditorGUILayout.LabelField("Button's Parent", TPTooltipDesigner.skin.GetStyle("TipLabel"), GUILayout.Width(140), GUILayout.Height(14));
+                EditorGUILayout.EndHorizontal();
+
                 if (layoutTextsParent == null || layoutImagesParent == null || layoutButtonsParent == null)
                 {
                     FindLayoutProperties();
@@ -389,9 +400,9 @@ namespace TP_TooltipEditor
 
                 EditorGUILayout.BeginHorizontal();
                 
-                EditorGUILayout.PropertyField(layoutTextsParent, GUIContent.none);
-                EditorGUILayout.PropertyField(layoutImagesParent, GUIContent.none);
-                EditorGUILayout.PropertyField(layoutButtonsParent, GUIContent.none);
+                EditorGUILayout.PropertyField(layoutTextsParent, GUIContent.none, GUILayout.Height(20));
+                EditorGUILayout.PropertyField(layoutImagesParent, GUIContent.none, GUILayout.Height(20));
+                EditorGUILayout.PropertyField(layoutButtonsParent, GUIContent.none, GUILayout.Height(20));
 
                 if (GUI.changed)
                 {
@@ -430,6 +441,7 @@ namespace TP_TooltipEditor
                 EditorGUILayout.HelpBox("Nothing loaded!", MessageType.Error);
                 return;
             }
+            EditorGUILayout.LabelField("Loaded: ");
             int length = layout.arraySize;
             for (int i = 0; i < length; i++)
             {

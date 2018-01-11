@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.EventSystems;
 
-namespace TP_TooltipCreator
+namespace TP_Tooltip
 {
     public class TPTooltipObserver : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
     {

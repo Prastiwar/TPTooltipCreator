@@ -1,5 +1,5 @@
 ﻿using UnityEditor;
-using TP_TooltipCreator;
+using TP_Tooltip;
 
 namespace TP_TooltipEditor
 {

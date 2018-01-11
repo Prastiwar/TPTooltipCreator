@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using UnityEditor;
-using TP_TooltipCreator;
+using TP_Tooltip;
 
 namespace TP_TooltipEditor
 {
@@ -15,8 +15,8 @@ namespace TP_TooltipEditor
                 return;
             }
             TPTooltipDesigner window = (TPTooltipDesigner)GetWindow(typeof(TPTooltipDesigner));
-            window.minSize = new Vector2(615, 330);
-            window.maxSize = new Vector2(615, 330);
+            window.minSize = new Vector2(615, 290);
+            window.maxSize = new Vector2(615, 290);
             window.Show();
         }
 
@@ -60,6 +60,7 @@ namespace TP_TooltipEditor
 
             skin = EditorData.GUISkin;
         }
+
         void CheckGUIData()
         {
             if (EditorData.GUISkin == null)
@@ -71,6 +72,8 @@ namespace TP_TooltipEditor
                 EditorData.TooltipPrefab = AssetDatabase.LoadAssetAtPath(
                     "Assets/TP_Creator/TP_TooltipCreator/EditorResources/TooltipCanvas.prefab",
                     typeof(GameObject)) as GameObject;
+
+            EditorUtility.SetDirty(EditorData);
         }
 
         void CreateEditorData()
@@ -125,6 +128,7 @@ namespace TP_TooltipEditor
             DrawManager();
             DrawTools();
         }
+
         void DrawLayouts()
         {
             headerSection = new Rect(0, 0, Screen.width, 50);

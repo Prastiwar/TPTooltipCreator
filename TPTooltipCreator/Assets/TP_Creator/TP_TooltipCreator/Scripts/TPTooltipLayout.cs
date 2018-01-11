@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-namespace TP_TooltipCreator
+namespace TP_Tooltip
 {
     public class TPTooltipLayout : MonoBehaviour
     {
@@ -11,7 +11,8 @@ namespace TP_TooltipCreator
         [HideInInspector] public List<Image> Images;
         [HideInInspector] public List<Button> Buttons;
 
-        [HideInInspector] public Transform PanelTransform;
+        Transform panelTranform;
+        [HideInInspector] public Transform PanelTransform { get { return panelTranform; } private set { panelTranform = value; } }
         [HideInInspector] public Transform TextsParent;
         [HideInInspector] public Transform ImagesParent;
         [HideInInspector] public Transform ButtonsParent;
@@ -28,7 +29,7 @@ namespace TP_TooltipCreator
         public void Refresh()
         {
             PanelTransform = transform.GetChild(0);
-            Texts.Clear();
+            Texts.Clear(); 
             Images.Clear();
             Buttons.Clear();
             GetComponents(TextsParent, Texts);

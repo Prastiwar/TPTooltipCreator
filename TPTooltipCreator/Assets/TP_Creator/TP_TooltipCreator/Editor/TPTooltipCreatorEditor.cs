@@ -1,4 +1,4 @@
-﻿using TP_TooltipCreator;
+﻿using TP_Tooltip;
 using UnityEditor;
 
 namespace TP_TooltipEditor
