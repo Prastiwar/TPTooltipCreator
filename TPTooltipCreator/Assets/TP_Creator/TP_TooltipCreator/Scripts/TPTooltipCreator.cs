@@ -45,6 +45,7 @@ namespace TP_Tooltip
         {
             if (TooltipLayout != null)
             {
+                TooltipLayout.Refresh();
                 TooltipLayoutCanvas = TooltipLayout.gameObject;
                 Image PanelImage = TooltipLayout.PanelTransform.GetComponent<Image>();
                 Rect PanelRect = PanelImage.rectTransform.rect;

@@ -15,7 +15,7 @@ public class ExampleTooltipScript : MonoBehaviour
         canvas = creator.TooltipLayout.GetComponent<CanvasGroup>();
 
         creator.SetTooltipActive(false);
-        creator.TooltipLayout.SetButtonClick(0, BtnClick);
+        creator.TooltipLayout.SetButtonClick(BtnClick, 0);
         creator.SetOnEnterObserver(Extend);
         creator.StaticTransform = StaticTransform;
         creator.SetOnActive(FadeOnActive);
@@ -50,8 +50,9 @@ public class ExampleTooltipScript : MonoBehaviour
     // Method which will execute on tooltip OnObserver
     void Extend()
     {
-        creator.TooltipLayout.SetText(0, creator.OnObserver.name);
-        creator.TooltipLayout.SetText(1, creator.OnObserver.name + "'s description");
+        //creator.TooltipLayout.SetText(creator.OnObserver.name, 0);
+        //creator.TooltipLayout.SetText(creator.OnObserver.name + "'s description", 1);
+        creator.TooltipLayout.SetText(new string[]{ creator.OnObserver.name, creator.OnObserver.name + "'s description" }, 0, 1);
 
         int length = 6;
         for (int i = 2; i < length; i++)
