@@ -25,11 +25,9 @@ namespace TP_Tooltip
         public delegate void OnActive(bool active);
         OnActive ActiveTooltip;
 
-        public delegate void OnEnterObserver();
-        OnEnterObserver EnterObserver;
-
-        public delegate void OnExitObserver();
-        OnExitObserver ExitObserver;
+        public delegate void OnObserverAction();
+        OnObserverAction EnterObserver;
+        OnObserverAction ExitObserver;
 
         void OnValidate()
         {
@@ -131,12 +129,12 @@ namespace TP_Tooltip
                 SetTooltipActive(SetActive);
         }
 
-        public void SetOnEnterObserver(OnEnterObserver onEnter)
+        public void SetOnEnterObserver(OnObserverAction onEnter)
         {
             EnterObserver = onEnter;
         }
 
-        public void SetOnExitObserver(OnExitObserver onExit)
+        public void SetOnExitObserver(OnObserverAction onExit)
         {
             ExitObserver = onExit;
         }

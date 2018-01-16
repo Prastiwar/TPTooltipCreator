@@ -4,6 +4,7 @@ using TP_Tooltip;
 
 namespace TP_TooltipEditor
 {
+    [InitializeOnLoad]
     public class TPTooltipDesigner : EditorWindow
     {
         [MenuItem("TP_Creator/TP_TooltipCreator")]
@@ -11,7 +12,7 @@ namespace TP_TooltipEditor
         {
             if (EditorApplication.isPlaying)
             {
-                Debug.Log("You can't change Inventory Designer runtime!");
+                Debug.Log("You can't change Tooltip Designer runtime!");
                 return;
             }
             TPTooltipDesigner window = (TPTooltipDesigner)GetWindow(typeof(TPTooltipDesigner));

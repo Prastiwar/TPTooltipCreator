@@ -4,6 +4,7 @@ using TP_Tooltip;
 
 namespace TP_TooltipEditor
 {
+    [InitializeOnLoad]
     public class TPTooltipToolsWindow : EditorWindow
     {
         public static TPTooltipToolsWindow window;
@@ -353,7 +354,9 @@ namespace TP_TooltipEditor
 
         void Update()
         {
-            if(tool == ToolEnum.Preview)
+            if (EditorApplication.isCompiling)
+                this.Close();
+            if (tool == ToolEnum.Preview)
                 Repaint();
         }
 
