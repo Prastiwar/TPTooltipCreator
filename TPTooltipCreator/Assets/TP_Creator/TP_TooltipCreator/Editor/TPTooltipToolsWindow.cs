@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEditor;
 using TP_Tooltip;
+using UnityEditor.SceneManagement;
 
 namespace TP_TooltipEditor
 {
@@ -51,6 +52,7 @@ namespace TP_TooltipEditor
 
         static float windowSize = 450;
         static float windowPreviewSize = 600;
+        static string currentScene;
 
         public static void OpenToolWindow(ToolEnum _tool)
         {
@@ -59,6 +61,10 @@ namespace TP_TooltipEditor
 
             tool = _tool;
             window = (TPTooltipToolsWindow)GetWindow(typeof(TPTooltipToolsWindow));
+
+            currentScene = EditorSceneManager.GetActiveScene().name;
+            EditorApplication.hierarchyWindowChanged += hierarchyWindowChanged;
+
             if (tool == ToolEnum.Preview)
             {
                 window.minSize = new Vector2(windowPreviewSize, windowPreviewSize);
@@ -70,6 +76,17 @@ namespace TP_TooltipEditor
                 window.maxSize = new Vector2(windowSize, windowSize);
             }
             window.Show();
+        }
+
+        static void hierarchyWindowChanged()
+        {
+            if (currentScene != EditorSceneManager.GetActiveScene().name)
+            {
+                if (TPTooltipDesigner.window)
+                    TPTooltipDesigner.window.Close();
+                if (window)
+                    window.Close();
+            }
         }
 
         void OnEnable()

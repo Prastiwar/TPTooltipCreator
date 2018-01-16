@@ -1,12 +1,16 @@
 ﻿using UnityEngine;
 using UnityEditor;
 using TP_Tooltip;
+using UnityEditor.SceneManagement;
 
 namespace TP_TooltipEditor
 {
     [InitializeOnLoad]
     public class TPTooltipDesigner : EditorWindow
     {
+        public static TPTooltipDesigner window;
+        static string currentScene;
+
         [MenuItem("TP_Creator/TP_TooltipCreator")]
         public static void OpenWindow()
         {
@@ -15,10 +19,24 @@ namespace TP_TooltipEditor
                 Debug.Log("You can't change Tooltip Designer runtime!");
                 return;
             }
-            TPTooltipDesigner window = (TPTooltipDesigner)GetWindow(typeof(TPTooltipDesigner));
+            currentScene = EditorSceneManager.GetActiveScene().name;
+            EditorApplication.hierarchyWindowChanged += hierarchyWindowChanged;
+
+            window = (TPTooltipDesigner)GetWindow(typeof(TPTooltipDesigner));
             window.minSize = new Vector2(615, 290);
             window.maxSize = new Vector2(615, 290);
             window.Show();
+        }
+
+        static void hierarchyWindowChanged()
+        {
+            if (currentScene != EditorSceneManager.GetActiveScene().name)
+            {
+                if (TPTooltipToolsWindow.window)
+                    TPTooltipToolsWindow.window.Close();
+                if (window)
+                    window.Close();
+            }
         }
 
         public static TPTooltipGUIData EditorData;
