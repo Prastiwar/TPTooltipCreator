@@ -6,7 +6,7 @@ using UnityEditor.SceneManagement;
 namespace TP_TooltipEditor
 {
     [InitializeOnLoad]
-    public class TPTooltipDesigner : EditorWindow
+    internal class TPTooltipDesigner : EditorWindow
     {
         public static TPTooltipDesigner window;
         static string currentScene;
@@ -19,10 +19,9 @@ namespace TP_TooltipEditor
                 Debug.Log("You can't change Tooltip Designer runtime!");
                 return;
             }
+            window = (TPTooltipDesigner)GetWindow(typeof(TPTooltipDesigner));
             currentScene = EditorSceneManager.GetActiveScene().name;
             EditorApplication.hierarchyWindowChanged += hierarchyWindowChanged;
-
-            window = (TPTooltipDesigner)GetWindow(typeof(TPTooltipDesigner));
             window.minSize = new Vector2(615, 290);
             window.maxSize = new Vector2(615, 290);
             window.Show();
@@ -177,6 +176,7 @@ namespace TP_TooltipEditor
             }
             else
             {
+                ToggleDebugMode();
                 SpawnEmpty();
                 ResetManager();
 
@@ -207,6 +207,22 @@ namespace TP_TooltipEditor
                     GUILayout.Height(30)) as TPTooltipCreator;
         }
 
+        void ToggleDebugMode()
+        {
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button("Toggle Debug Mode", skin.button, GUILayout.Height(25)))
+            {
+                TPTooltipCreator.DebugMode = !TPTooltipCreator.DebugMode;
+                if (TPTooltipToolsWindow.window)
+                {
+                    UpdateManager();
+                    TPTooltipToolsWindow.window.Close();
+                }
+            }
+            GUILayout.Toggle(TPTooltipCreator.DebugMode, GUIContent.none, GUILayout.Width(15));
+            GUILayout.EndHorizontal();
+        }
+
         void ResetManager()
         {
             if (GUILayout.Button("Reset Manager", skin.button, GUILayout.Height(45)))
@@ -230,11 +246,17 @@ namespace TP_TooltipEditor
         public static void UpdateManager()
         {
             if(TooltipCreator.TooltipLayout != null)
+            {
                 TooltipCreator.TooltipLayout.Refresh();
+                EditorUtility.SetDirty(TooltipCreator.TooltipLayout);
+            }
             if(creator != null)
                 creator.ApplyModifiedProperties();
-            if(TooltipCreator)
+            if (TooltipCreator)
+            {
                 TooltipCreator.Refresh();
+                EditorUtility.SetDirty(TooltipCreator);
+            }
         }
 
         void DrawTools()

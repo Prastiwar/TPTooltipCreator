@@ -4,7 +4,7 @@ using UnityEditor;
 namespace TP_TooltipEditor
 {
     [CustomEditor(typeof(TPTooltipCreator))]
-    public class TPTooltipCreatorEditor : ScriptlessTooltipEditor
+    internal class TPTooltipCreatorEditor : ScriptlessTooltipEditor
     {
         string OBJObservers = "OBJObservers";
 
@@ -12,7 +12,8 @@ namespace TP_TooltipEditor
         {
             EditorGUILayout.LabelField("This script allows you to manage your Tooltip");
 
-            DrawPropertiesExcluding(serializedObject, scriptField, OBJObservers);
+            if (TPTooltipCreator.DebugMode)
+                DrawPropertiesExcluding(serializedObject, scriptField, OBJObservers);
 
             OpenCreator();
         }

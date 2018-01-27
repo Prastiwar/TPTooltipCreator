@@ -1,21 +1,26 @@
 ﻿using UnityEngine;
 using UnityEditor;
+using TP_Tooltip;
 
 namespace TP_TooltipEditor
 {
     [CustomEditor(typeof(TPTooltipGUIData))]
-    public class TPTooltipGUIDataEditor : ScriptlessTooltipEditor
+    internal class TPTooltipGUIDataEditor : ScriptlessTooltipEditor
     {
         TPTooltipGUIData TPTooltipData;
 
         void OnEnable()
         {
             TPTooltipData = (TPTooltipGUIData)target;
+            if (serializedObject.targetObject.hideFlags != HideFlags.NotEditable)
+                serializedObject.targetObject.hideFlags = HideFlags.NotEditable;
         }
 
         public override void OnInspectorGUI()
         {
-            serializedObject.Update();
+            EditorGUILayout.LabelField("Container for editor data");
+            if (TPTooltipCreator.DebugMode)
+                return;
 
             EditorGUILayout.LabelField("GUI Skin");
             TPTooltipData.GUISkin =
@@ -25,11 +30,6 @@ namespace TP_TooltipEditor
 
             EditorGUILayout.LabelField("Empty Tooltip Hierarchy Prefab");
             TPTooltipData.TooltipPrefab = (EditorGUILayout.ObjectField(TPTooltipData.TooltipPrefab, typeof(GameObject), true) as GameObject);
-
-            if (GUI.changed)
-                EditorUtility.SetDirty(TPTooltipData);
-
-            serializedObject.ApplyModifiedProperties();
         }
     }
 }

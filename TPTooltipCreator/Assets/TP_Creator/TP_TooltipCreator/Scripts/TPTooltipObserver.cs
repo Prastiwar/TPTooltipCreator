@@ -12,8 +12,8 @@ namespace TP_Tooltip
             StaticEnter,
             StaticClick
         }
-        [HideInInspector] public ToolTipType SetType;
-        [HideInInspector] public bool IsObserving = true;
+        public ToolTipType SetType;
+        public bool IsObserving = true;
 
         TPTooltipCreator tooltipCreator;
 

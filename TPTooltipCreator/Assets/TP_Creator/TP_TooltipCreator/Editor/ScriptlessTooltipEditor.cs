@@ -1,9 +1,10 @@
-﻿using UnityEditor;
+﻿using TP_Tooltip;
+using UnityEditor;
 using UnityEngine;
 
 namespace TP_TooltipEditor
 {
-    public class ScriptlessTooltipEditor : Editor
+    internal class ScriptlessTooltipEditor : Editor
     {
         public readonly string scriptField = "m_Script";
 
@@ -16,6 +17,16 @@ namespace TP_TooltipEditor
 
         public void OpenCreator()
         {
+            if (TPTooltipCreator.DebugMode)
+            {
+                if (serializedObject.targetObject.hideFlags != HideFlags.NotEditable)
+                    serializedObject.targetObject.hideFlags = HideFlags.NotEditable;
+                return;
+            }
+
+            if (serializedObject.targetObject.hideFlags != HideFlags.None)
+                serializedObject.targetObject.hideFlags = HideFlags.None;
+
             if (GUILayout.Button("Open Tooltip Manager", GUILayout.Height(30)))
             {
                 TPTooltipDesigner.OpenWindow();

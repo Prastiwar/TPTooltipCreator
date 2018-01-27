@@ -337,6 +337,11 @@ Prefab:
       propertyPath: OBJObservers.Array.data[3]
       value: 
       objectReference: {fileID: 83587455}
+    - target: {fileID: 225074705517386534, guid: 292c7d9cb7f4b7a48aaf849af4ccd6ff,
+        type: 2}
+      propertyPath: m_IgnoreParentGroups
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 292c7d9cb7f4b7a48aaf849af4ccd6ff, type: 2}
   m_IsPrefabParent: 0

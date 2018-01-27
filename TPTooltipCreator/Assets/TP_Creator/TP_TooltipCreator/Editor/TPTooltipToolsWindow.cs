@@ -6,7 +6,7 @@ using UnityEditor.SceneManagement;
 namespace TP_TooltipEditor
 {
     [InitializeOnLoad]
-    public class TPTooltipToolsWindow : EditorWindow
+    internal class TPTooltipToolsWindow : EditorWindow
     {
         public static TPTooltipToolsWindow window;
         public enum ToolEnum
@@ -76,6 +76,10 @@ namespace TP_TooltipEditor
                 window.maxSize = new Vector2(windowSize, windowSize);
             }
             window.Show();
+            if (tool == ToolEnum.Layout)
+                AssetDatabase.OpenAsset(TPTooltipDesigner.TooltipCreator.TooltipLayout);
+            else
+                AssetDatabase.OpenAsset(TPTooltipDesigner.TooltipCreator);
         }
 
         static void hierarchyWindowChanged()

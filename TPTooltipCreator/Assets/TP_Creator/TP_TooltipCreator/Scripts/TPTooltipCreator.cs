@@ -8,11 +8,12 @@ namespace TP_Tooltip
 {
     public class TPTooltipCreator : MonoBehaviour
     {
-        [HideInInspector] public TPTooltipLayout TooltipLayout;
-        [HideInInspector] public Transform StaticTransform;
-        [HideInInspector] public Vector2 Offset;
-        [HideInInspector] public TPTooltipObserver OnObserver;
-        [HideInInspector] public List<TPTooltipObserver> Observers = new List<TPTooltipObserver>();
+        public static bool DebugMode;
+        public TPTooltipLayout TooltipLayout;
+        public Transform StaticTransform;
+        public Vector2 Offset;
+        public TPTooltipObserver OnObserver;
+        public List<TPTooltipObserver> Observers = new List<TPTooltipObserver>();
 
         [SerializeField] List<GameObject> OBJObservers;
         PointerEventData _eventData;

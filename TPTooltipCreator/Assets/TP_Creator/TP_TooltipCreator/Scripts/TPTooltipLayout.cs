@@ -7,15 +7,15 @@ namespace TP_Tooltip
 {
     public class TPTooltipLayout : MonoBehaviour
     {
-        [HideInInspector] public List<TextMeshProUGUI> Texts;
-        [HideInInspector] public List<Image> Images;
-        [HideInInspector] public List<Button> Buttons;
+        public List<TextMeshProUGUI> Texts;
+        public List<Image> Images;
+        public List<Button> Buttons;
 
         Transform panelTranform;
         [HideInInspector] public Transform PanelTransform { get { return panelTranform; } private set { panelTranform = value; } }
-        [HideInInspector] public Transform TextsParent;
-        [HideInInspector] public Transform ImagesParent;
-        [HideInInspector] public Transform ButtonsParent;
+        public Transform TextsParent;
+        public Transform ImagesParent;
+        public Transform ButtonsParent;
 
         void OnValidate()
         {
