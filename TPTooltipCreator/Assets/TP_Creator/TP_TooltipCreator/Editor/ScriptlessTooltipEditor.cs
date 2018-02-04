@@ -1,8 +1,8 @@
-﻿using TP_Tooltip;
+﻿using TP.Tooltip;
 using UnityEditor;
 using UnityEngine;
 
-namespace TP_TooltipEditor
+namespace TP.TooltipEditor
 {
     internal class ScriptlessTooltipEditor : Editor
     {

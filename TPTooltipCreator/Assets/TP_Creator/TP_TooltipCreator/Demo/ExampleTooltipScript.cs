@@ -1,6 +1,6 @@
 ﻿using System.Collections;
 using UnityEngine;
-using TP_Tooltip;
+using TP.Tooltip;
 
 public class ExampleTooltipScript : MonoBehaviour
 {

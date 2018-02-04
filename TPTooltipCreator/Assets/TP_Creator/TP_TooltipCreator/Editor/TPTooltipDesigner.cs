@@ -1,9 +1,9 @@
 ﻿using UnityEngine;
 using UnityEditor;
-using TP_Tooltip;
+using TP.Tooltip;
 using UnityEditor.SceneManagement;
 
-namespace TP_TooltipEditor
+namespace TP.TooltipEditor
 {
     [InitializeOnLoad]
     internal class TPTooltipDesigner : EditorWindow

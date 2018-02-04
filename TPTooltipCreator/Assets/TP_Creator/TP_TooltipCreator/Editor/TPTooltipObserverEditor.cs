@@ -1,7 +1,7 @@
-﻿using TP_Tooltip;
+﻿using TP.Tooltip;
 using UnityEditor;
 
-namespace TP_TooltipEditor
+namespace TP.TooltipEditor
 { 
     [CustomEditor(typeof(TPTooltipObserver))]
     internal class TPTooltipObserverEditor : ScriptlessTooltipEditor

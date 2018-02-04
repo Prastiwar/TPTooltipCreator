@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace TP_TooltipEditor
+namespace TP.TooltipEditor
 {
     public class TPTooltipGUIData : ScriptableObject
     {

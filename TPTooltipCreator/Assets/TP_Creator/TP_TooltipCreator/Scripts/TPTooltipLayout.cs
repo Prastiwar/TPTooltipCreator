@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-namespace TP_Tooltip
+namespace TP.Tooltip
 {
     public class TPTooltipLayout : MonoBehaviour
     {

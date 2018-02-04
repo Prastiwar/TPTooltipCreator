@@ -4,7 +4,7 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using System.Collections.Generic;
 
-namespace TP_Tooltip
+namespace TP.Tooltip
 {
     public class TPTooltipCreator : MonoBehaviour
     {
