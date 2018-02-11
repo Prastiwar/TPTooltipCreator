@@ -2,6 +2,7 @@
 using UnityEditor;
 using TP.Tooltip;
 using UnityEditor.SceneManagement;
+using TP.Utilities;
 
 namespace TP.TooltipEditor
 {
@@ -38,7 +39,7 @@ namespace TP.TooltipEditor
             }
         }
 
-        public static TPTooltipGUIData EditorData;
+        public static TPEditorGUIData EditorData;
         public static TPTooltipCreator TooltipCreator;
         public static GUISkin skin;
 
@@ -67,9 +68,13 @@ namespace TP.TooltipEditor
 
         void InitEditorData()
         {
+            string path = "Assets/TP_Creator/_CreatorResources/";
+            if (!System.IO.Directory.Exists(path))
+                System.IO.Directory.CreateDirectory(path);
+
             EditorData = AssetDatabase.LoadAssetAtPath(
-                   "Assets/TP_Creator/TP_TooltipCreator/EditorResources/TooltipEditorGUIData.asset",
-                   typeof(TPTooltipGUIData)) as TPTooltipGUIData;
+                   path + "TooltipEditorGUIData.asset",
+                   typeof(TPEditorGUIData)) as TPEditorGUIData;
             
             if (EditorData == null)
                 CreateEditorData();
@@ -83,21 +88,26 @@ namespace TP.TooltipEditor
         {
             if (EditorData.GUISkin == null)
                 EditorData.GUISkin = AssetDatabase.LoadAssetAtPath(
-                      "Assets/TP_Creator/TP_TooltipCreator/EditorResources/TPTooltipGUISkin.guiskin",
+                      "Assets/TP_Creator/_CreatorResources/TPEditorGUISkin.guiskin",
                       typeof(GUISkin)) as GUISkin;
 
-            if (EditorData.TooltipPrefab == null)
-                EditorData.TooltipPrefab = AssetDatabase.LoadAssetAtPath(
-                    "Assets/TP_Creator/TP_TooltipCreator/EditorResources/TooltipCanvas.prefab",
+            if (EditorData.Prefab == null)
+                EditorData.Prefab = AssetDatabase.LoadAssetAtPath(
+                    "Assets/TP_Creator/_CreatorResources/TooltipCanvas.prefab",
                     typeof(GameObject)) as GameObject;
+
+            if (EditorData.GUISkin == null)
+            {
+                Debug.LogError("There is no guiskin for TPEditor!");
+            }
 
             EditorUtility.SetDirty(EditorData);
         }
 
         void CreateEditorData()
         {
-            TPTooltipGUIData newEditorData = ScriptableObject.CreateInstance<TPTooltipGUIData>();
-            AssetDatabase.CreateAsset(newEditorData, "Assets/TP_Creator/TP_TooltipCreator/EditorResources/TooltipEditorGUIData.asset");
+            TPEditorGUIData newEditorData = ScriptableObject.CreateInstance<TPEditorGUIData>();
+            AssetDatabase.CreateAsset(newEditorData, "Assets/TP_Creator/_CreatorResources/TooltipEditorGUIData.asset");
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
             EditorData = newEditorData;
@@ -233,12 +243,12 @@ namespace TP.TooltipEditor
         {
             if (GUILayout.Button("Spawn empty Tooltip Canvas", skin.button, GUILayout.Height(50)))
             {
-                if (EditorData.TooltipPrefab == null)
+                if (EditorData.Prefab == null)
                 {
-                    Debug.LogError("There is no tooltip prefab in EditorGUIData file!");
+                    Debug.LogError("There is no tooltip prefab named 'TooltipCanvas' in Creator Resources folder!");
                     return;
                 }
-                Instantiate(EditorData.TooltipPrefab);
+                Instantiate(EditorData.Prefab);
                 Debug.Log("Tooltip example Created");
             }
         }

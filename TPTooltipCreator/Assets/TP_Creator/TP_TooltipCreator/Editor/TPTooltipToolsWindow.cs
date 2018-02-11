@@ -156,7 +156,7 @@ namespace TP.TooltipEditor
             previewTexture.SetPixel(0, 0, Color.red);
             previewTexture.Apply();
             previewTexture = AssetDatabase.LoadAssetAtPath(
-                "Assets/TP_Creator/TP_TooltipCreator/EditorResources/preview.png", typeof(Texture2D)) as Texture2D;
+                "Assets/TP_Creator/_CreatorResources/preview.png", typeof(Texture2D)) as Texture2D;
 
             var panel = TPTooltipDesigner.TooltipCreator.TooltipLayout.PanelTransform.GetComponent<RectTransform>().rect;
             tooltipTexture = new Texture2D((int)panel.width, (int)panel.height);

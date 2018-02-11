@@ -734,7 +734,6 @@ MonoBehaviour:
   - {fileID: 114963807789026356}
   Buttons:
   - {fileID: 114724729065958374}
-  PanelTransform: {fileID: 224248229026195824}
   TextsParent: {fileID: 224300424320618446}
   ImagesParent: {fileID: 224128094034000640}
   ButtonsParent: {fileID: 224262675299632452}
